@@ -1,0 +1,290 @@
+---
+title: Disabling Features
+description: Learn how to disable unwanted features in the CSAFAP Config Package
+---
+
+The CSAFAP Config Package includes many features, but you may not want to use all of them. This guide shows you how to disable specific features by commenting out their keybinds.
+
+## How to Disable Features
+
+To disable any feature in the CSAFAP Config Package, simply add `//` (two forward slashes) at the start of the line containing the feature's keybind in `csafap/MAIN.cfg`.
+
+<Note>
+  Adding `//` at the start of a line turns it into a comment, which means CS2 will ignore that line completely.
+</Note>
+
+## Disabling Base Features
+
+The four main radio wheels can be individually disabled:
+
+### Disable Map Selection & Practice Mode
+
+```cfg
+// Original (enabled)
+bind "M" +map_action
+
+// Disabled
+//bind "M" +map_action
+```
+
+### Disable T Line-ups
+
+```cfg
+// Original (enabled)
+bind "J" +T_action
+
+// Disabled
+//bind "J" +T_action
+```
+
+### Disable CT Line-ups
+
+```cfg
+// Original (enabled)
+bind "H" +CT_action
+
+// Disabled
+//bind "H" +CT_action
+```
+
+### Disable Crosshair/Movement Features
+
+```cfg
+// Original (enabled)
+bind "K" +crosshair_action
+
+// Disabled
+//bind "K" +crosshair_action
+```
+
+## Disabling Advanced Features
+
+### Disable Jumpthrow Binds
+
+```cfg
+// Original (enabled)
+bind "space" +JumpThrow
+
+// Disabled
+//bind "space" +JumpThrow
+```
+
+### Disable W-Jumpthrow
+
+```cfg
+// Original (enabled)
+bind "N" +WJumpThrow
+
+// Disabled
+//bind "N" +WJumpThrow
+```
+
+### Disable Desubtick Jumping
+
+```cfg
+// Original (enabled)
+bind "mwheeldown" desubJ
+
+// Disabled
+//bind "mwheeldown" desubJ
+```
+
+### Disable Crouch-Jump
+
+This feature is already disabled by default. To enable it, remove the `//`:
+
+```cfg
+// Disabled (default)
+//bind "CAPSLOCK" +CrouchJump
+
+// Enabled
+bind "CAPSLOCK" +CrouchJump
+```
+
+### Disable Rapid Fire Toggle
+
+This feature is already disabled by default:
+
+```cfg
+// Disabled (default)
+//bind "Ralt" toggle_rapid
+
+// Enabled
+bind "Ralt" toggle_rapid
+```
+
+## Disabling FaceIt Auto Line-ups
+
+The FaceIt-compatible auto line-up binds are disabled by default. They use the same keys as the normal auto line-ups but work on FaceIt servers:
+
+```cfg
+// Keep these disabled unless you need FaceIt compatibility
+//bind "J" +fAC_T_action   // T SMOKES for FaceIt
+//bind "H" +fAC_CT_action  // CT SMOKES for FaceIt
+```
+
+<Warning>
+  Do not enable both the regular auto line-up binds AND the FaceIt binds on the same keys. This will cause conflicts.
+</Warning>
+
+## Disabling Movement Options at Launch
+
+These features control which movement system loads when the game starts. They're all disabled by default:
+
+```cfg
+// All disabled by default - only enable ONE if needed
+
+//exec csafap/movement/default           // Default movement binds (WASD)
+//alias load_movement load_null          // Null binds (snap-tap)
+//alias load_movement load_desub         // Desubtick binds
+//alias load_follow_recoil load_rpd      // Rapid Fire
+//alias load_follow_recoil load_flw      // Better Follow Recoil
+//alias load_follow_recoil load_rpdflw  // Follow Recoil + Rapid Fire
+```
+
+<Info>
+  Only enable ONE movement option at a time. Multiple enabled movement options may cause conflicts.
+</Info>
+
+## Disabling Rapid Fire & Follow Recoil Weapon Binds
+
+The `ef_` weapon binds are required for rapid fire and follow-recoil features. If you're not using these features, keep them disabled:
+
+```cfg
+// All disabled by default - only enable if using rapid fire/follow recoil
+
+//bind 1            "ef_slot1"      // primary
+//bind 2            "ef_slot2"      // secondary
+//bind 3            "ef_slot3"      // melee
+//bind 4            "ef_slot4"      // cycle nades
+//bind 5            "ef_slot5"      // bomb
+//bind c            "ef_slot6"      // HE grenade
+//bind f            "ef_slot7"      // flash
+//bind g            "ef_slot8"      // smoke
+//bind z            "ef_slot9"      // decoy
+//bind scancode100  "ef_slot9"      // decoy
+//bind v            "ef_slot10"     // molotov/incendiary
+//bind q            "ef_lastinv"    // quickswitch
+```
+
+## Step-by-Step: Disabling Multiple Features
+
+<Steps>
+  <Step title="Open MAIN.cfg">
+    Navigate to `csafap/MAIN.cfg` and open it with a text editor (e.g., Notepad++).
+  </Step>
+  
+  <Step title="Locate the features">
+    Find all the keybinds for features you want to disable. They're organized in sections:
+    - BASE KEYBINDS (lines 8-15)
+    - AveYo's binds (lines 17-23)
+    - Enable settings at game launch (lines 27-33)
+    - Rapid fire/follow recoil requirements (lines 36-47)
+  </Step>
+  
+  <Step title="Add // to each line">
+    Add `//` at the start of each line you want to disable:
+    
+    ```cfg
+    // Before (enabled)
+    bind "M" +map_action
+    bind "space" +JumpThrow
+    
+    // After (disabled)
+    //bind "M" +map_action
+    //bind "space" +JumpThrow
+    ```
+  </Step>
+  
+  <Step title="Save the file">
+    Save `MAIN.cfg` with your changes.
+  </Step>
+  
+  <Step title="Reload config">
+    In CS2 console, type `exec csafap/main` to reload the config with your changes.
+  </Step>
+</Steps>
+
+## Example: Minimal Setup
+
+If you only want to use the jumpthrow binds and auto line-ups, disable everything else:
+
+```cfg
+// =================== BASE KEYBINDS ========================================
+//bind "M" +map_action           // Disabled - not using practice mode
+bind "J" +T_action               // Enabled - using T smokes
+bind "H" +CT_action              // Enabled - using CT smokes
+//bind "K" +crosshair_action     // Disabled - not using crosshair features
+
+// =================== AveYo's binds ========================================
+bind "space" +JumpThrow          // Enabled - using jumpthrow
+bind "N" +WJumpThrow             // Enabled - using W-jumpthrow
+//bind "mwheeldown" desubJ       // Disabled - not using desubtick jump
+//bind "CAPSLOCK" +CrouchJump    // Disabled - not using crouch-jump
+//bind "Ralt" toggle_rapid       // Disabled - not using rapid fire
+```
+
+## Re-enabling Features
+
+To re-enable a feature, simply remove the `//` from the start of the line:
+
+```cfg
+// Disabled
+//bind "M" +map_action
+
+// Re-enabled
+bind "M" +map_action
+```
+
+## What Happens When You Disable Features
+
+When you disable a feature by commenting out its keybind:
+
+1. **The key becomes available** - You can bind it to something else
+2. **The feature still exists** - The underlying code is still loaded, just not bound to a key
+3. **No performance impact** - Disabled features don't consume resources
+4. **Easy to re-enable** - Just remove the `//` and reload the config
+
+## Disabling vs. Removing Launch Options
+
+Some features require launch options to work. Disabling the keybind is different from removing the launch option:
+
+### Disabling the keybind
+```cfg
+//bind "space" +JumpThrow  // Feature still works if manually executed
+```
+
+### Removing the launch option
+```
+// Remove from Steam launch options:
+-testscript "../../csgo/cfg/csafap/addons/.vtest"
+```
+
+<Warning>
+  If you disable ALL features that require the `-testscript` launch option (jumpthrow, W-jumpthrow, rapid fire, follow-recoil, desubtick), you should also remove the launch option to avoid console spam.
+</Warning>
+
+## Troubleshooting
+
+### Feature still activates after disabling
+
+**Problem:** You added `//` but the feature still works.
+
+**Solution:** Make sure you reloaded the config by typing `exec csafap/main` in console.
+
+### Key doesn't work anymore
+
+**Problem:** After disabling a feature, the key doesn't do anything.
+
+**Solution:** This is expected. The key is now unbound. You can bind it to a different action if desired.
+
+### Console spam after disabling ticker features
+
+**Problem:** Console shows `Unknown command: W!...` after disabling jumpthrow/rapid fire.
+
+**Solution:** If you disabled ALL ticker features, remove the `-testscript` launch option from Steam.
+
+## See Also
+
+- [Keybinds](/customization/keybinds) - Customize your keybinds
+- [Custom Radio Wheels](/customization/custom-radio-wheels) - Create custom features to replace disabled ones

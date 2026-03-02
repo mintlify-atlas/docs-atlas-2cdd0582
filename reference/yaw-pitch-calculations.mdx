@@ -1,0 +1,198 @@
+---
+title: Yaw/Pitch Calculations
+description: Mathematical formula and implementation details for calculating automatic line-up angles in the CSAFAP Config Package.
+---
+
+The CSAFAP Config Package uses precise yaw and pitch calculations to automatically aim at smoke line-ups and wallbang positions. This system allows players to instantly align their crosshair to pixel-perfect angles.
+
+## The Formula
+
+From README.md Q9, the core calculation for yaw/pitch values is:
+
+$$
+X = \frac{a}{s \times m\_yaw}
+$$
+
+Where:
+- **X** = desired yaw/pitch command value
+- **a** = angle you need to rotate (in degrees)
+- **s** = sensitivity (fixed at 1.0 for calculations)
+- **m_yaw** = horizontal mouse sensitivity multiplier (fixed at 0.022)
+
+## Standard Sensitivity Values
+
+The framework uses normalized sensitivity for all auto line-up calculations (csafap/logic.cfg:29):
+
+```cfg
+alias startsens "sensitivity 1.0;m_yaw 0.022;sensitivity_y_scale 1"
+```
+
+**Why these values?**
+- `sensitivity 1.0` provides a known baseline
+- `m_yaw 0.022` is CS2's default horizontal sensitivity ratio
+- `sensitivity_y_scale 1` ensures vertical and horizontal sensitivities match
+
+This allows the same calculation formula to work regardless of the player's actual sensitivity settings.
+
+## Simplified Formula
+
+With `s = 1.0` and `m_yaw = 0.022`, the formula simplifies to:
+
+$$
+X = \frac{a}{0.022} = 45.4545... \times a
+$$
+
+For example:
+- 90° turn: `X = 90 / 0.022 = 4090.909...`
+- 45° turn: `X = 45 / 0.022 = 2045.454...`
+- 180° turn: `X = 180 / 0.022 = 8181.818...`
+
+## Vertical Zeroing Adjustment
+
+Since version 2.15, the framework zeros vertical view angles at **-89°** (looking straight down) instead of 0° (csafap/logic.cfg:59):
+
+```cfg
+alias zero_ud "pitch -4045.45454545 0 0"  // vertical, looks straight up/down
+```
+
+**Critical**: When creating custom line-ups, you must add `+4045.45454545` to calculated pitch values:
+
+```
+Adjusted_Pitch = Calculated_Pitch + 4045.45454545
+```
+
+This adjustment compensates for the -89° starting point.
+
+### Why -89° instead of 0°?
+
+Valve's animgraph2 update (July 28, 2025) broke the old zeroing method. Starting from -89° provides a stable reference point that works reliably.
+
+## Horizontal Zeroing
+
+The framework zeros horizontal view angles using an extreme `m_yaw` value (csafap/logic.cfg:58):
+
+```cfg
+alias zero_lr "m_yaw 99999999999999; yaw 20 1 1; reset_deadzone"
+```
+
+**How it works:**
+1. Set `m_yaw` to absurdly high value
+2. Execute `yaw 20 1 1` (tiny movement)
+3. The extreme `m_yaw` causes massive rotation, snapping to -180°/180° boundary
+4. Reset deadzone for radio wheel
+
+This ensures horizontal angle starts at a known reference (0° after normalization).
+
+## Practical Example: Finding a Line-up
+
+From README.md Q9, here's the complete workflow:
+
+### Step 1: Find the Angle
+
+In-game with `sv_cheats 1`:
+
+```
+getpos
+```
+
+Example output:
+```
+setpos -123.45 678.90 -32.10; setang 12.34 -45.67 0.00
+```
+
+Extract the angles:
+- Pitch (vertical): `12.34`
+- Yaw (horizontal): `-45.67`
+
+### Step 2: Calculate Command Values
+
+**Horizontal (Yaw):**
+```
+Yaw_Value = -45.67 / 0.022 = -2075.909090...
+```
+
+**Vertical (Pitch):**
+```
+Base_Pitch = 12.34 / 0.022 = 560.909090...
+Adjusted_Pitch = 560.909090 + 4045.45454545 = 4606.363635...
+```
+
+### Step 3: Create the Alias
+
+In `csafap/logic.cfg` or map-specific config file:
+
+```cfg
+alias my_custom_lineup "yaw -2075.909090 0 0; pitch 4606.363635 0 0"
+```
+
+### Step 4: Create Radio Label
+
+In `csgo/resource/platform_english.txt`:
+
+```
+"CFG_MY_LINEUP"    "Custom A Site\nSmoke\n \n \n \n \n "
+```
+
+### Step 5: Add to Radio Wheel
+
+In `csafap/maps/[mapname]_labels.cfg`:
+```cfg
+cl_radial_radio_tab_0_text_1 "#CFG_MY_LINEUP"
+```
+
+In `csafap/maps/[mapname]_cmd.cfg`:
+```cfg
+cl_radial_radio_tab_0_text_1 cmd";my_custom_lineup;
+```
+
+## Command Syntax
+
+The `yaw` and `pitch` commands use this format:
+
+```cfg
+yaw <value> <unused> <unused>
+pitch <value> <unused> <unused>
+```
+
+The last two parameters are legacy and always set to `0 0` in modern configs.
+
+## Custom Sensitivity Support
+
+Version 2.18 added support for custom `sensitivity_y_scale` values. If a player uses a different vertical sensitivity ratio, the framework accounts for this:
+
+```cfg
+alias startsens "sensitivity 1.0;m_yaw 0.022;sensitivity_y_scale 1"
+```
+
+Players with custom Y-scale should update this line in their config to match their preference.
+
+## Precision Considerations
+
+- Use at least 6 decimal places for accuracy: `4045.454545`
+- CS2 accepts higher precision, so `4045.45454545` is better
+- For repeating decimals (like 0.909090...), use 8-10 digits
+- Example: `2075.909090909090` ensures sub-pixel accuracy
+
+## Debugging Line-ups
+
+**If line-up aims wrong:**
+1. Check if `startsens` executed before aim commands
+2. Verify the +4045.45454545 adjustment was added to pitch
+3. Test with `getpos` to compare actual vs expected angles
+4. Ensure `zero_lr` and `zero_ud` executed in correct order
+
+**If line-up is 180° off horizontally:**
+- This was a known bug in versions 2.24-2.29
+- Fixed in version 2.29+ by improving zeroing logic
+- Check that `zero_lr` uses `m_yaw 99999999999999` (enough 9s)
+
+## Performance Notes
+
+Angle calculations happen instantly (single frame), but the radio wheel system adds a small delay:
+
+1. Frame 1: `zero_lr` executes (horizontal zero)
+2. Frame 2-3: Radio wheel opens via `+radialradio2`
+3. Frame 4: `zero_ud` typically executes
+4. Frame 5+: Player hovers and selects option
+
+The entire sequence completes in &lt;100ms with good framerate.

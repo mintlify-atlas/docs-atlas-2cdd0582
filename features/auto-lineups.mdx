@@ -1,0 +1,249 @@
+---
+title: 'Auto Line-ups'
+description: 'Automatic pixel-perfect smokes and wallbangs with instant positioning'
+---
+
+Auto line-ups provide instant, pixel-perfect grenade throws and wallbangs on official servers. The config automatically positions your crosshair to the exact angle needed for each lineup.
+
+## How Auto Line-ups Work
+
+Auto line-ups use CS2's `yaw` and `pitch` commands to automatically rotate your viewpoint to precise angles for throwing grenades:
+
+```cfg
+// Example: Ancient CT B smoke from spawn 3
+alias anc_smoke_CT_B_3_x "yaw 0 -4090.909090909091"
+alias anc_smoke_CT_B_3_y "pitch 0 4233.471074380165"
+```
+
+When activated, the config:
+1. Zeroes your horizontal view to -89°
+2. Zeroes your vertical view to -89°  
+3. Rotates to the calculated lineup angle
+4. Opens the radio wheel for you to throw
+
+## Using Auto Line-ups
+
+<Steps>
+  <Step title="Select Your Map">
+    Open the map wheel (default: **M**) and select your current map
+  </Step>
+  
+  <Step title="Open Side Wheel">
+    - Press **H** for CT-side lineups
+    - Press **J** for T-side lineups
+  </Step>
+  
+  <Step title="Choose Lineup">
+    Hover over the desired smoke or wallbang and press the same key again
+  </Step>
+  
+  <Step title="Throw Grenade">
+    Your crosshair will auto-position. Throw your grenade as normal (left-click, right-click, or jumpthrow)
+  </Step>
+</Steps>
+
+<Tip>
+Scroll your mouse wheel while the lineup wheel is open to access 2 additional pages of lineups.
+</Tip>
+
+## Instant Smokes by Map
+
+### Ancient
+- **CT-Side**: B site smokes (spawns 1-5), A site smokes (spawns 4-5)
+- **T-Side**: Multiple site execute smokes
+
+### Dust2  
+- **CT-Side**: Upper tunnels smoke
+- **T-Side**: Long and short site smokes
+
+### Inferno
+- **CT-Side**: Banana control smokes
+- **T-Side**: A site execute smokes (FaZe-style)
+
+### Mirage
+- **CT-Side**: Window smoke (spawns 2-5, faster landing)
+- **T-Side**: 
+  - Top connector smoke (no window pre-req)
+  - Bottom connector smoke (no window pre-req)  
+  - 5-smoke A execute
+  - Instant window smokes
+
+### Nuke
+- **Multiple wallbangs**: AWP positions, site control
+- **Instant smokes**: Site control and executes
+
+### Overpass
+- **CT-Side**: 
+  - Instant Monster smokes
+  - Mid incendiary
+  - Banana to B-stairs molotov
+- **T-Side**: Multiple wallbangs and executes
+
+### Train
+- **T-Side**: 
+  - 2x A Main smokes
+  - 2x A Bombtrain smokes
+  - 1x Gate smoke
+  - Instant Sandwich smokes
+  - Ivy control lineups
+
+## FaceIt Alternative Binds
+
+For FaceIt and other third-party servers, use alternative auto lineup binds:
+
+<CodeGroup>
+```cfg Standard Binds (MM/Premier)
+bind H +CT_wheel_1
+bind J +T_wheel_1
+```
+
+```cfg FaceIt Binds
+// Enable FaceIt binds in csafap/main.cfg by uncommenting:
+exec csafap/addons/faceit/faceit
+bind H +fAC_CT_wheel_1  
+bind J +fAC_T_wheel_1
+```
+</CodeGroup>
+
+<Warning>
+FaceIt binds use a different method to work around server restrictions. Enable them in `csafap/main.cfg` before using on FaceIt servers.
+</Warning>
+
+## Custom Sensitivity Support
+
+Auto lineups work with custom `sensitivity_y_scale` settings:
+
+```cfg
+// The config automatically compensates for vertical sensitivity scaling
+// No manual adjustment needed
+```
+
+## Teleport Feature (Practice Servers)
+
+On servers with `sv_cheats 1`, auto lineups can teleport you to the correct spawn position:
+
+```cfg
+// Example spawn teleport (Ancient CT spawn 3)
+alias anc_spawn_CT_3 "setpos -79.8 1851.0 112.0; setang 0.0 -90.0 0"
+```
+
+This is useful for practicing lineups offline.
+
+## Creating Custom Auto Line-ups
+
+<Steps>
+  <Step title="Find the Lineup">
+    Position yourself and find the angle using `getpos` and `getpos_exact`
+  </Step>
+  
+  <Step title="Calculate Yaw/Pitch">
+    Use the formula:
+    
+    ```
+    X = angle / (sensitivity × m_yaw)
+    ```
+    
+    Where:
+    - `angle` = degrees to rotate
+    - `sensitivity` = 1.0 (config uses normalized sens)
+    - `m_yaw` = 0.022 (default horizontal sensitivity)
+    
+    For pitch: Add +4045.45454545 to compensate for -89° zeroing
+  </Step>
+  
+  <Step title="Create Aliases">
+    Add to `csafap/logic.cfg`:
+    
+    ```cfg
+    alias mysmoke_x "yaw 0 [calculated_x_value]"
+    alias mysmoke_y "pitch 0 [calculated_y_value]"
+    ```
+  </Step>
+  
+  <Step title="Add Labels">
+    Create label in `platform_english.txt`:
+    
+    ```
+    "CFG_MYSMOKE" "My Custom\nSmoke\n \n \n \n \n "
+    ```
+  </Step>
+  
+  <Step title="Bind to Radio Wheel">
+    In `csafap/maps/[mapname]_labels.cfg`:
+    ```cfg
+    cl_radial_radio_tab_0_text_1 "#CFG_MYSMOKE"
+    ```
+    
+    In `csafap/maps/[mapname]_cmd.cfg`:
+    ```cfg
+    cl_radial_radio_tab_0_text_1 cmd";fAC;mysmoke_x;mysmoke_y;
+    ```
+  </Step>
+</Steps>
+
+## Angle Zeroing System
+
+Auto lineups use a two-stage zeroing process:
+
+1. **Horizontal Zero**: Rotates view to -89° horizontally using `yaw`
+2. **Vertical Zero**: Rotates view to -89° vertically using `pitch`  
+3. **Final Rotation**: Applies the calculated lineup angle
+
+This ensures consistent positioning regardless of your starting view angle.
+
+```cfg
+// Zeroing aliases (from csafap/logic.cfg)
+alias zero_x "yaw 0 -4045.45454545"  // Rotate to -89° horizontal
+alias zero_y "pitch 0 -4045.45454545" // Rotate to -89° vertical
+```
+
+## Common Auto Line-up Configs
+
+### Mirage Instant Window (Spawn 2-5)
+```cfg
+// CT Window smoke from spawn 2 (faster version)
+alias mir_window_CT_2_x "yaw 0 -2272.727272727273"
+alias mir_window_CT_2_y "pitch 0 4181.818181818182"
+```
+
+### Overpass Monster Smoke
+```cfg  
+// Instant Monster smoke lineup
+alias ovp_monster_x "yaw 0 -3181.818181818182"
+alias ovp_monster_y "pitch 0 4227.272727272727"
+```
+
+### Train A Main Smoke
+```cfg
+// Train A Main instant smoke  
+alias trn_amain_1_x "yaw 0 -1909.090909090909"
+alias trn_amain_1_y "pitch 0 4136.363636363636"
+```
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Lineup is 180° wrong horizontally">
+    This was a known bug in older versions. Update to CSAFAP v2.29+ which includes the fix. If using custom lineups, verify your yaw calculations.
+  </Accordion>
+  
+  <Accordion title="Vertical angle only moves 90° up">
+    This was fixed in v2.28. Make sure you're using the latest version with proper vertical zeroing logic.
+  </Accordion>
+  
+  <Accordion title="Wrong spawn selected">
+    Some maps (Inferno, Overpass) had spawn order corrections in v2.30-2.31. Update to the latest version for accurate spawn teleports.
+  </Accordion>
+  
+  <Accordion title="Lineups broken after Valve update">
+    Valve's animgraph2 update (July 2025) broke angle zeroing. This was fixed in v2.15 with updated zeroing logic. Always use the latest version.
+  </Accordion>
+  
+  <Accordion title="FaceIt binds not working">
+    Make sure you've uncommented the FaceIt bind section in `csafap/main.cfg` and are using the `+fAC_` wheel aliases instead of standard ones.
+  </Accordion>
+</AccordionGroup>
+
+<Info>
+For video demonstrations of auto lineups, check the [YouTube playlists](https://www.youtube.com/@FNScence/playlists) sorted by map.
+</Info>

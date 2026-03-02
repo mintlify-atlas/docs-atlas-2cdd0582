@@ -1,0 +1,222 @@
+---
+title: Radio Wheel Mechanics
+description: How the framework uses CS2 radio wheels to create interactive configuration menus
+---
+
+The CSAFAP framework transforms CS2's built-in radio communication system into an interactive UI for accessing hundreds of configuration options. This is achieved through clever manipulation of radio wheel commands and custom language files.
+
+## How Radio Wheels Work
+
+CS2 has three built-in radio wheels accessed via:
+- `+radialradio` - Standard radio
+- `+radialradio2` - Secondary radio  
+- `+radialradio3` - Tertiary radio
+
+Each wheel has multiple tiles that can display custom text and execute commands when selected.
+
+## Two-Phase Interaction Model
+
+The framework implements a two-phase system for radio wheel interaction:
+
+### Phase 1: Display Labels
+
+When you first press a hotkey (e.g., `J` for T-side line-ups):
+
+```cfg
+// From logic.cfg:35
+alias +T_wheel_1 "reset_deadzone; exec csafap/maps/T_labels; setup_wheel; map_T_labels"
+```
+
+This:
+1. Resets the deadzone for accurate selection
+2. Loads label text from configuration files
+3. Sets up the wheel environment
+4. Loads map-specific labels
+
+### Phase 2: Execute Commands
+
+When you press the same key again while hovering over a tile:
+
+```cfg
+// From logic.cfg:37
+alias +T_wheel_2 "map_T_cmd;dontlookup; startsens"
+alias -T_wheel_2 "-radialradio2; T_hotkey1; sens_reset; map_T_labels;resetradio"
+```
+
+This:
+1. Switches from labels to command configuration
+2. Sets up the environment for execution (sensitivity, view angles)
+3. Executes the selected command
+4. Resets the radio wheel and rebinds hotkey for next use
+
+<Tabs>
+  <Tab title="Label Configuration">
+    Labels are defined in `platform_english.txt` language file and loaded via:
+    
+    ```cfg
+    // Example label config
+    cl_radial_radio_tab_0_text_1 "#CFG_MIRAGE_WINDOW"
+    cl_radial_radio_tab_0_text_2 "#CFG_MIRAGE_STAIRS"
+    cl_radial_radio_tab_0_text_3 "#CFG_MIRAGE_JUNGLE"
+    ```
+  </Tab>
+  <Tab title="Command Configuration">
+    Commands are executed when a tile is selected:
+    
+    ```cfg
+    // Example command config  
+    cl_radial_radio_tab_0_text_1 cmd";mirage_window_smoke;
+    cl_radial_radio_tab_0_text_2 cmd";mirage_stairs_smoke;
+    cl_radial_radio_tab_0_text_3 cmd";mirage_jungle_smoke;
+    ```
+  </Tab>
+</Tabs>
+
+## Radio Wheel Types
+
+The framework uses different radio wheels for different purposes:
+
+### Map Selection Wheel
+
+```cfg
+// From logic.cfg:24-27
+alias +map_wheel_1 "reset_deadzone; exec csafap/maps/map_labels; wheel_curr_map;+radialradio2"
+alias -map_wheel_1 "map_hotkey2; sens_reset"
+alias +map_wheel_2 "exec csafap/maps/map_cmd"
+alias -map_wheel_2 "-radialradio2; map_hotkey1;resetradio"
+```
+
+Opens a wheel showing all competitive maps. Selecting a map loads that map's line-up configurations.
+
+### CT/T Line-up Wheels
+
+```cfg
+// CT Wheel - logic.cfg:30-33
+alias +CT_wheel_1 "reset_deadzone; exec csafap/maps/CT_labels; map_CT_labels; setup_wheel"
+alias -CT_wheel_1 "slot8; zero_lr; +radialradio2; CT_hotkey2"
+alias +CT_wheel_2 "map_CT_cmd;dontlookup; startsens"
+alias -CT_wheel_2 "-radialradio2; CT_hotkey1; sens_reset;resetradio"
+
+// T Wheel - logic.cfg:35-38  
+alias +T_wheel_1 "reset_deadzone; exec csafap/maps/T_labels; setup_wheel; map_T_labels"
+alias -T_wheel_1 "slot8; zero_lr; +radialradio2; T_hotkey2"
+alias +T_wheel_2 "map_T_cmd;dontlookup; startsens"
+alias -T_wheel_2 "-radialradio2; T_hotkey1; sens_reset; map_T_labels;resetradio"
+```
+
+Displays side-specific smoke line-ups and wallbangs. The wheel automatically:
+- Equips smoke grenade (`slot8`)
+- Zeros view angles for precise aiming
+- Applies standard sensitivity for calculations
+
+### Movement/Crosshair Wheel
+
+```cfg
+// From logic.cfg:40-43
+alias +move_wheel_1 "exec csafap/movement/movement_labels; null_labels; reset_deadzone; +radialradio2"
+alias -move_wheel_1 "movement_hotkey2; sens_reset; exec csafap/crosshair/pro/crosshairs"
+alias +move_wheel_2 "exec csafap/movement/movement_cmd; null_cmd"
+alias -move_wheel_2 "-radialradio2; movement_hotkey1;resetradio"
+```
+
+Provides access to:
+- Pro player crosshairs
+- Null/Snap-tap binds
+- Rapid fire mode
+- Follow-recoil mode
+
+## Multi-Page Wheels
+
+The framework supports multiple pages accessible via mouse wheel scrolling:
+
+```cfg
+// Players can scroll mouse wheel while radio is open to access more options
+// This allows 3x the number of line-ups per map
+```
+
+<Info>
+Each radio wheel supports multiple tabs, and the framework can display different pages by scrolling the mouse wheel while the radio menu is open. This enables hundreds of line-ups across just a few keybinds.
+</Info>
+
+## Wheel Setup Process
+
+Before opening a line-up wheel, the framework prepares the environment:
+
+```cfg
+// From maps/setup_wheel.cfg
+startsens; zero_ud;buy smokegrenade; original_mx; original_my
+```
+
+This:
+1. **`startsens`** - Sets sensitivity to 1.0 for angle calculations
+2. **`zero_ud`** - Zeros vertical view angle to -89 degrees
+3. **`buy smokegrenade`** - Ensures player has a smoke grenade
+4. **`original_mx/my`** - Preserves original mouse bindings
+
+## Zeroing System
+
+For auto line-ups to work, the framework must know the exact starting view angle:
+
+```cfg
+// From logic.cfg:58-59
+alias zero_lr "m_yaw 99999999999999; yaw 20 1 1; reset_deadzone"  // Horizontal
+alias zero_ud "pitch -4045.45454545 0 0"  // Vertical
+```
+
+The zeroing system:
+- **Horizontal**: Sets an extremely high m_yaw to prevent mouse input, then uses `yaw` command to snap to 0 degrees
+- **Vertical**: Uses `pitch` command to snap view to -89 degrees (looking straight up)
+
+<Note>
+The values -4045.45454545 and similar are calculated based on the formula:
+
+```
+X = angle / (sensitivity × m_yaw)
+X = 89 / (1.0 × 0.022) = 4045.45454545
+```
+
+This ensures pixel-perfect alignment regardless of player's actual sensitivity.
+</Note>
+
+## Deadzone Configuration
+
+The radio wheel deadzone controls how close to the center you can be before a selection is made:
+
+```cfg
+// From logic.cfg:68
+alias reset_deadzone "cl_radialmenu_deadzone_size 0.4"
+```
+
+For some features, the deadzone is set to 0 for immediate activation:
+
+```cfg
+// From logic.cfg:81
+alias +JT "exec csafap/addons/multi/JT;default_movement;+radialradio3;cl_radialmenu_deadzone_size 0"
+```
+
+## Resetting the Radio
+
+After each use, the radio must be reset to default state:
+
+```cfg
+// From logic.cfg:99-100
+alias resetradio "exec csafap/maps/resetradio"
+resetradio
+```
+
+This ensures radio tiles don't show stale configuration from previous selections.
+
+## Custom Language Files
+
+Radio tile text is customized via `platform_english.txt`:
+
+```
+"CFG_MIRAGE_WINDOW"    "Instant Window\n from spawns 1-5\n \n \n \n \n "
+"CFG_TRAIN_ASMOKER"    "A Main Smokes\n from spawns 1-5\n \n \n \n \n "
+```
+
+The `\n` characters create line breaks for better readability in the wheel UI.
+
+<Info>
+Changes to `platform_english.txt` require a game restart to take effect, as this file is loaded only during CS2 initialization.
+</Info>

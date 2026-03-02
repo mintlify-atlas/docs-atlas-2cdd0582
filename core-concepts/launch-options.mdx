@@ -1,0 +1,323 @@
+---
+title: Launch Options
+description: Required CS2 launch options for the CSAFAP Config Package
+---
+
+The CSAFAP Config Package requires specific launch options to function properly. These options ensure the framework loads correctly and enables advanced features.
+
+## Required Launch Options
+
+Add these launch options to CS2 in Steam:
+
+```bash
++exec csafap/main -testscript "../../csgo/cfg/csafap/addons/.vtest"
+```
+
+<Info>
+To set launch options:
+1. Right-click CS2 in your Steam library
+2. Select "Properties"
+3. Under "General", find "Launch Options"
+4. Paste the launch options string
+</Info>
+
+## Understanding Each Component
+
+### +exec csafap/main
+
+The `+exec` command executes a configuration file when the game launches.
+
+```bash
++exec csafap/main
+```
+
+This:
+- Loads the framework before entering any server
+- Ensures all aliases are registered at startup
+- Prevents issues with command queue truncation
+- Initializes user preferences from `MAIN.cfg`
+
+<Note>
+The `+` prefix means the command runs during game startup, before the main menu loads. This is crucial for proper initialization.
+</Note>
+
+### Why exec on Launch?
+
+The framework must be loaded via launch options rather than manually because:
+
+1. **Alias Initialization**: Ticker-based features need aliases ready before first frame
+2. **Command Queue**: Long configs can get truncated if executed mid-session  
+3. **Stability**: Loading from main menu prevents crashes on disconnect/changelevel
+4. **FaceIt Compatibility**: Some servers reject configs executed after connection
+
+From the README:
+
+> Make sure not to exec csafap/main after the initial exec on game launch
+
+### -testscript "../../csgo/cfg/csafap/addons/.vtest"
+
+The `-testscript` option loads a VScript test file that runs every frame.
+
+```bash
+-testscript "../../csgo/cfg/csafap/addons/.vtest"
+```
+
+This enables the "ticker" system by executing special aliases every frame.
+
+#### Path Explanation
+
+```
+../../csgo/cfg/csafap/addons/.vtest
+```
+
+Breaking down the path:
+- `../..` - Navigate up two directories from the default script location
+- `/csgo/cfg/` - Enter the config directory
+- `csafap/addons/` - Enter the framework addon directory
+- `.vtest` - Load the ticker script file
+
+<Info>
+The `.vtest` file must have no name (just the extension) and be saved with the VTest file type.
+</Info>
+
+## What the Ticker System Enables
+
+The `.vtest` script is the foundation for advanced features:
+
+```cfg
+// From addons/.vtest
+Test_WaitForCheckPoint frame_end
+
+W!   // Movement ticker
+W!
+A!
+A!
+S!
+S!
+D!
+D!
+
+M1!  // Mouse button tickers
+M2!
+
+JT!  // Jumpthrow ticker
+JT!
+JT!
+JT!
+
+J!   // Jump ticker
+
+Test_Run  // Loop every frame
+```
+
+Each line calls an alias that can be dynamically reassigned:
+
+- **`W!`, `A!`, `S!`, `D!`** - Enable null binds and desubtick movement
+- **`M1!`, `M2!`** - Enable rapid fire and follow-recoil
+- **`JT!`** - Enable CS:GO-style jumpthrow binds
+- **`J!`** - Enable desubtick jumping
+
+<Note>
+Aliases called multiple times in a row (e.g., `W!` appears twice) allow for chaining multiple alias substitutions in a single frame. This is how complex features like jumpthrow can execute a sequence of commands frame-perfectly.
+</Note>
+
+## Features Requiring Launch Options
+
+These features will NOT work without the ticker system:
+
+### Jumpthrow Binds
+
+```cfg
+// From MAIN.cfg:19-20
+bind "space" +JumpThrow
+bind "N" +WJumpThrow
+```
+
+Executes CS:GO-style jumpthrows with perfect timing.
+
+### Null Binds (Snap-Tap)
+
+```cfg
+// From MAIN.cfg:29
+alias load_movement load_null
+```
+
+Automatic opposite-key cancellation for movement.
+
+### Desubtick Binds
+
+```cfg  
+// From MAIN.cfg:21
+bind "mwheeldown" desubJ
+
+// Or for full WASD
+alias load_movement load_desub
+```
+
+Delays input until next tick for CS:GO-like feel.
+
+### Rapid Fire
+
+```cfg
+// From MAIN.cfg:31
+alias load_follow_recoil load_rpd
+```
+
+Fires pistols at maximum fire rate while holding M1.
+
+### Better Follow-Recoil
+
+```cfg
+// From MAIN.cfg:32
+alias load_follow_recoil load_flw
+```
+
+Displays green dot indicating spray pattern.
+
+<Tabs>
+  <Tab title="With Ticker">
+    All advanced features work:
+    - Jumpthrow binds
+    - Null movement  
+    - Rapid fire
+    - Follow-recoil
+    - Desubtick jump/movement
+  </Tab>
+  <Tab title="Without Ticker">
+    Only basic features work:
+    - Auto line-ups
+    - Radio wheels
+    - Practice mode
+    - Pro crosshairs
+    - Manual movement configs
+  </Tab>
+</Tabs>
+
+## Troubleshooting Launch Options
+
+### Error: "couldn't exec cfg/csafap/main.cfg"
+
+This means the config file isn't found. Common causes:
+
+1. **Wrong installation path**: Config must be at:
+   ```
+   Counter-Strike Global Offensive/game/csgo/cfg/csafap/
+   ```
+   NOT at:
+   ```
+   Counter-Strike Global Offensive/csgo/cfg/csafap/  ❌
+   ```
+
+2. **Case sensitivity on Linux**: Use lowercase:
+   ```bash
+   +exec csafap/main  ✓
+   +exec CSAFAP/MAIN  ✗
+   ```
+
+### Error: "Unknown command: W!..."
+
+This means ticker aliases aren't initialized. Causes:
+
+1. **Missing launch option**: Verify `-testscript` is in launch options
+2. **Path is wrong**: Check the `.vtest` file path  
+3. **File type is wrong**: `.vtest` must be saved as VTest file type
+4. **Command queue truncated**: A command in `MAIN.cfg` is too long
+
+From the README FAQ:
+
+> The launch option spams these alias every frame. If the alias are not assigned on game launch, this will happen and other binds using the ticker function (including movement and mouse binds) will not work.
+
+### Movement/Mouse Buttons Not Working
+
+If WASD or mouse buttons stop responding after installation:
+
+1. Check console for "Unknown command: W!" spam
+2. Verify `.vtest` launch option is correct
+3. Check that `alias reset_crosshair` in `MAIN.cfg` isn't too long
+4. Try removing crosshair settings to shorten the command
+
+### Kicked from Official Servers
+
+If you're getting kicked when using certain features:
+
+1. **Don't use practice mode teleports** on official servers - they require `sv_cheats 1`
+2. **Rapid fire is server FPS dependent** - works at >150 FPS by default
+3. **Some line-ups are patched** - check the version history in README
+
+<Info>
+All features in the CSAFAP Config Package are legal on Valve official servers and FaceIt. You will not be banned for using them. However, some practice commands require `sv_cheats 1` and will kick you if attempted on official servers.
+</Info>
+
+## Optional Launch Options
+
+These aren't required but can be useful:
+
+### Disable Intro Video
+
+```bash
+-novid
+```
+
+### Set Tickrate for Local Servers  
+
+```bash
+-tickrate 128
+```
+
+### Full Example
+
+```bash
++exec csafap/main -testscript "../../csgo/cfg/csafap/addons/.vtest" -novid -tickrate 128
+```
+
+## Verifying Launch Options Work
+
+After setting launch options, verify they work:
+
+1. **Launch CS2**
+2. **Open console** (usually `~` key)
+3. **Look for confirmation message**:
+   ```
+   - csafap Config Package successfully loaded -
+   Written by ".FNScence"
+   To change settings, edit csafap/MAIN.cfg
+   ```
+
+4. **Test a basic keybind**: Press `M` (default map wheel bind)
+5. **Check for ticker spam**: You should NOT see "Unknown command: W!" messages
+
+If you see the confirmation message and no error spam, the framework is working correctly.
+
+## Launch Option Compatibility
+
+### FaceIt
+
+The CSAFAP launch options are compatible with FaceIt Anti-Cheat:
+
+- Config files are allowed
+- `.vtest` ticker script is allowed  
+- Null binds are allowed
+- Auto line-ups use allowed commands
+
+<Note>
+FaceIt explicitly confirmed that yaw/pitch commands, custom radio wheels, and null binds are legal for ranked PUGs. They are not allowed in higher leagues like ESEA/ESL which prohibit the `alias` command entirely.
+</Note>
+
+### VAC (Valve Anti-Cheat)
+
+All features work on VAC-secured servers:
+
+- Everything uses legal console commands
+- No memory modification
+- No external tools
+- Works under `sv_cheats 0`
+
+### Community Servers
+
+Most community servers allow the config, but some may:
+
+- Block `+exec` in launch options
+- Disable `yaw`/`pitch` commands
+- Restrict radio wheel customization
+
+Test basic features when joining a new server type.

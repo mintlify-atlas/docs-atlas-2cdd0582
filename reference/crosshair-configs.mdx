@@ -1,0 +1,464 @@
+---
+title: "Crosshair Configurations"
+description: "Complete reference for pro crosshairs, follow-recoil system, rapid fire, and dynamic crosshair features"
+---
+
+## Overview
+
+The crosshair system provides pro player crosshair presets, advanced follow-recoil mechanics, rapid fire functionality, and dynamic crosshair switching based on weapon slots.
+
+## File Location
+
+```
+csafap/crosshair/
+```
+
+## Pro Crosshairs
+
+Pre-configured crosshairs from professional CS2 players.
+
+### Available Pro Crosshairs
+
+<ParamField path="csafap/crosshair/pro/crosshairs.cfg" type="file">
+  Contains 60+ professional player crosshair configurations.
+  
+  **Featured Players:**
+  - apEX, ropz, ZywOo (Vitality)
+  - NiKo, m0NESY, huNter- (G2)
+  - donk, sh1ro, magixx (Spirit)
+  - karrigan, frozen, Twistzz (FaZe)
+  - b1t, Aleksib, w0nderful (NAVI)
+  - And many more...
+</ParamField>
+
+### Example Pro Crosshair Configurations
+
+<CodeGroup>
+```cfg apEX
+alias apEX "alias proch apex; cl_crosshairstyle 4; 
+  cl_crosshair_recoil 0; cl_crosshairdot 0; cl_crosshairsize 1.5; 
+  cl_crosshairthickness 1; cl_crosshairgap -3; 
+  cl_crosshair_drawoutline 0; cl_crosshaircolor 2; 
+  cl_crosshaircolor_r 0; cl_crosshaircolor_g 255; 
+  cl_crosshaircolor_b 0; cl_crosshairalpha 200"
+```
+
+```cfg ZywOo
+alias ZywOo "alias proch ZywOo; cl_crosshairstyle 4; 
+  cl_crosshair_recoil 0; cl_crosshairdot 0; cl_crosshairsize 1.5; 
+  cl_crosshairthickness 0.1; cl_crosshairgap -3; 
+  cl_crosshair_drawoutline 0; cl_crosshaircolor 4; 
+  cl_crosshaircolor_r 0; cl_crosshaircolor_g 255; 
+  cl_crosshaircolor_b 255"
+```
+
+```cfg NiKo
+alias NiKo "alias proch NiKo; cl_crosshairstyle 4; 
+  cl_crosshair_recoil 0; cl_crosshairdot 0; cl_crosshairsize 1; 
+  cl_crosshairthickness 1; cl_crosshairgap -4; 
+  cl_crosshair_drawoutline 0; cl_crosshaircolor 5; 
+  cl_crosshaircolor_r 0; cl_crosshaircolor_g 255; 
+  cl_crosshaircolor_b 145"
+```
+
+```cfg donk
+alias donk "alias proch donk; cl_crosshairstyle 4; 
+  cl_crosshair_recoil 0; cl_crosshairdot 1; cl_crosshairsize 0.5; 
+  cl_crosshairthickness 1; cl_crosshairgap -3; 
+  cl_crosshair_drawoutline 0; cl_crosshaircolor 1; 
+  cl_crosshaircolor_r 255; cl_crosshaircolor_g 255; 
+  cl_crosshaircolor_b 255"
+```
+</CodeGroup>
+
+### Using Pro Crosshairs
+
+```cfg
+// In console, type the player's name:
+apEX     // Loads apEX's crosshair
+ZywOo    // Loads ZywOo's crosshair
+NiKo     // Loads NiKo's crosshair
+donk     // Loads donk's crosshair
+```
+
+## Follow-Recoil System
+
+<Info>
+Requires launch option: `-testscript "../../csgo/cfg/csafap/addons/.vtest"`
+Requires: `bind MOUSE1 +M1`
+</Info>
+
+### Follow-Recoil Only
+
+<ParamField path="csafap/crosshair/followrecoil.cfg" type="file">
+  Crosshair follows weapon recoil pattern without rapid fire.
+  
+  **Features:**
+  - Dynamic crosshair that follows recoil
+  - Works on rifles (Slot 1)
+  - Normal pistol behavior (Slot 2)
+  - FPS limit: 600
+  
+  **Configuration:**
+  ```cfg
+  fps_max 600
+  
+  // Follow recoil indicator
+  alias crosshair_follow "cl_crosshairsize 0.8; 
+    cl_crosshairthickness 1; cl_crosshairgap -5; 
+    cl_crosshaircolor 1; cl_crosshair_drawoutline false; 
+    cl_crosshairalpha 255; cl_crosshairstyle 4"
+  ```
+  
+  **Activation in MAIN.cfg:**
+  ```cfg
+  alias load_follow_recoil load_flw
+  ```
+</ParamField>
+
+### Follow-Recoil Logic
+
+The system uses a 2-step delay with warmup phase:
+
+```cfg
+// Delay system
+alias d_1 "alias run_recoil d_2"
+alias d_2 "counter_step; alias run_recoil d_1"
+
+// Warmup Phase (Steps 1-7)
+alias rc_01 "alias counter_step rc_02"
+alias rc_02 "alias counter_step rc_03"
+alias rc_03 "alias counter_step rc_04"
+alias rc_04 "alias counter_step rc_05"
+alias rc_05 "alias counter_step rc_06"
+alias rc_06 "alias counter_step rc_07"
+alias rc_07 "alias counter_step rc_loop_on"
+
+// Infinite Flicker Loop (Recoil ON)
+alias rc_loop_on  "cl_crosshair_recoil 1; crosshair_follow; 
+  alias counter_step rc_loop_off"
+alias rc_loop_off "cl_crosshair_recoil 0; reset_crosshair; 
+  alias counter_step rc_loop_on"
+```
+
+## Rapid Fire System
+
+### Rapid Fire + Follow-Recoil
+
+<ParamField path="csafap/crosshair/rapid_followrecoil.cfg" type="file">
+  Combined rapid fire and follow-recoil system.
+  
+  **Features:**
+  - Slot 1 (Rifle): Follow-recoil only (continuous fire)
+  - Slot 2 (Pistol): Rapid fire + follow-recoil
+  - Automatic weapon detection
+  - Memory system for last weapon used
+  
+  **Two Setup Modes:**
+  
+  **Setup 1 - Rapid Only:**
+  - Rifle: Normal
+  - Pistol: Rapid fire only
+  
+  **Setup 2 - Full Features:**
+  - Rifle: Follow-recoil
+  - Pistol: Rapid fire + follow-recoil
+  
+  **Activation in MAIN.cfg:**
+  ```cfg
+  alias load_follow_recoil load_rpdflw
+  ```
+</ParamField>
+
+### Rapid Fire Logic
+
+18-step loop for rapid fire:
+
+```cfg
+alias rf_01 "+attack; alias run_fire rf_02"
+alias rf_02 "-attack; alias run_fire rf_03"
+alias rf_03 "alias run_fire rf_04"
+// ... (steps 4-17)
+alias rf_18 "alias run_fire rf_01"
+```
+
+### Logic Modes
+
+<ParamField path="logic_off" type="alias">
+  Standard mouse behavior (no modifications).
+  
+  ```cfg
+  alias logic_off "alias tick_master ''; 
+    alias +M1_logic +attack; 
+    alias -M1_logic release_simple; 
+    alias init_loops ''"
+  ```
+</ParamField>
+
+<ParamField path="logic_rifle" type="alias">
+  Continuous fire with recoil crosshair (rifles).
+  
+  ```cfg
+  alias logic_rifle "alias tick_master run_recoil; 
+    alias +M1_logic +attack; 
+    alias -M1_logic release_full; 
+    alias init_loops reset_recoil_only"
+  ```
+</ParamField>
+
+<ParamField path="logic_pistol" type="alias">
+  Rapid tap fire with recoil crosshair (pistols).
+  
+  ```cfg
+  alias logic_pistol "alias tick_master tick_on; 
+    alias +M1_logic ''; 
+    alias -M1_logic release_full; 
+    alias init_loops reset_on"
+  ```
+</ParamField>
+
+<ParamField path="logic_rapid_only" type="alias">
+  Rapid fire without recoil crosshair.
+  
+  ```cfg
+  alias logic_rapid_only "alias tick_master run_fire; 
+    alias +M1_logic ''; 
+    alias -M1_logic release_simple; 
+    alias init_loops alias run_fire rf_01"
+  ```
+</ParamField>
+
+## Weapon Slot System
+
+<Warning>
+You MUST bind all weapon slots using the `ef_slot` binds for rapid fire/follow-recoil to work.
+</Warning>
+
+### Required Weapon Binds
+
+In `MAIN.cfg`, uncomment these lines:
+
+```cfg
+bind 1 "ef_slot1"      // Primary weapon
+bind 2 "ef_slot2"      // Secondary weapon  
+bind 3 "ef_slot3"      // Melee
+bind 4 "ef_slot4"      // Cycle grenades
+bind 5 "ef_slot5"      // Bomb
+bind c "ef_slot6"      // HE grenade
+bind f "ef_slot7"      // Flashbang
+bind g "ef_slot8"      // Smoke grenade
+bind z "ef_slot9"      // Decoy
+bind v "ef_slot10"     // Molotov/Incendiary
+bind q "ef_lastinv"    // Quick switch
+```
+
+### Weapon Slot Logic
+
+<CodeGroup>
+```cfg Setup 2 (Full Features)
+alias load_slots_enabled_2 "
+  alias ef_slot1 s2_slot1;    // Rifle logic
+  alias ef_slot2 s2_slot2;    // Pistol logic
+  alias ef_slot3 s_off_slot3; // Off
+  ..."
+
+alias s2_slot1 "slot1; set_slot1; logic_rifle"
+alias s2_slot2 "slot2; set_slot2; logic_pistol"
+```
+
+```cfg Setup 1 (Rapid Only)
+alias load_slots_enabled_1 "
+  alias ef_slot1 s1_slot1;    // Normal
+  alias ef_slot2 s1_slot2;    // Rapid only
+  alias ef_slot3 s_off_slot3; // Off
+  ..."
+
+alias s1_slot1 "slot1; set_slot1; logic_off"
+alias s1_slot2 "slot2; set_slot2; logic_rapid_only"
+```
+
+```cfg Disabled Slots
+alias s_off_slot3 "slot3; set_slot3; logic_off"
+alias s_off_slot4 "slot4; set_slot4; logic_off"
+// All utility and grenades use normal logic
+```
+</CodeGroup>
+
+## Hand-Specific Configurations
+
+<ParamField path="followrecoil_righthanded.cfg" type="file">
+  Follow-recoil optimized for right-handed viewmodel.
+</ParamField>
+
+<ParamField path="followrecoil_lefthanded.cfg" type="file">
+  Follow-recoil optimized for left-handed viewmodel.
+</ParamField>
+
+<ParamField path="rapid_followrecoil_lessthan150FPS.cfg" type="file">
+  Optimized rapid fire for systems with less than 150 FPS.
+  
+  Uses adjusted timing loops for lower frame rates.
+</ParamField>
+
+## Crosshair Mode System
+
+### RPD Mode (Rapid Fire)
+
+<ParamField path="csafap/crosshair/crosshair_mode/rpd.cfg" type="file">
+  Rapid fire mode configuration.
+  
+  ```cfg
+  alias init_ch_labels "exec csafap/crosshair/crosshair_mode/rpd_labels"
+  alias init_ch_cmd "exec csafap/crosshair/crosshair_mode/rpd_cmd"
+  alias init_ch "exec csafap/crosshair/rapid_followrecoil;rapid_setup_2;setup_2"
+  ```
+</ParamField>
+
+### FLW Mode (Follow Recoil)
+
+<ParamField path="csafap/crosshair/crosshair_mode/flw.cfg" type="file">
+  Follow-recoil mode configuration.
+  
+  ```cfg
+  alias init_ch_labels "exec csafap/crosshair/crosshair_mode/flw_labels"
+  alias init_ch_cmd "exec csafap/crosshair/crosshair_mode/flw_cmd"
+  alias init_ch "exec csafap/crosshair/rapid_followrecoil;rapid_setup_1;setup_1"
+  ```
+</ParamField>
+
+### RPDFLW Mode (Rapid + Follow)
+
+<ParamField path="csafap/crosshair/crosshair_mode/rpdflw.cfg" type="file">
+  Combined rapid fire and follow-recoil mode.
+  
+  Enables both features simultaneously with weapon-specific behavior.
+</ParamField>
+
+## Toggle System
+
+<ParamField path="toggle_rapid" type="alias">
+  Toggles rapid fire/follow-recoil on or off.
+  
+  ```cfg
+  // Turn OFF
+  alias rapid_mode_off "play buttons/blip1; logic_off; 
+    load_slots_disabled; alias toggle_rapid current_setup_activator; 
+    echo [OFF]"
+  
+  // Turn ON
+  alias current_setup_activator "current_setup"
+  ```
+  
+  Bind in MAIN.cfg:
+  ```cfg
+  bind "Ralt" toggle_rapid
+  ```
+</ParamField>
+
+## JumpThrow Integration
+
+The rapid fire system includes jump-throw binds:
+
+```cfg
+alias +JumpThrow alias JT! JT+1
+alias -JumpThrow alias JT! JT-1
+alias JT+1 "M1>; alias JT! JT+2"
+alias JT+2 "M2>; alias JT! JT+3"
+alias JT+3 "alias JT!; +jump"
+alias JT-1 "jump -9999 f u; alias JT!"
+
+alias +WJumpThrow alias JT! WT+1  // Running jump-throw
+alias -WJumpThrow alias JT! WT-1
+```
+
+## Quick Switch Memory System
+
+The config remembers your last weapon:
+
+```cfg
+alias qs_slot1 "alias ef_invnext ef_slot2; 
+  alias ef_invprev ef_slot10; set_lastinv; 
+  alias set_lastinv alias ef_lastinv ef_slot1; 
+  alias last_slot_used ef_slot1; ..."
+```
+
+Press Q to return to your previous weapon with correct logic mode.
+
+## Usage Examples
+
+### Example 1: Enable Follow-Recoil Only
+
+In `MAIN.cfg`:
+```cfg
+// 1. Enable the feature
+alias load_follow_recoil load_flw
+
+// 2. Bind all weapon slots
+bind 1 "ef_slot1"
+bind 2 "ef_slot2"
+// ... (all slots)
+bind q "ef_lastinv"
+```
+
+### Example 2: Use Pro Crosshair
+
+In console:
+```cfg
+ZywOo    // Loads ZywOo's crosshair
+donk     // Loads donk's crosshair
+```
+
+### Example 3: Toggle Rapid Fire
+
+```cfg
+// In MAIN.cfg:
+bind "Ralt" toggle_rapid
+
+// In-game:
+// Press Ralt to toggle ON/OFF
+```
+
+### Example 4: Setup 2 (Full Features)
+
+```cfg
+alias load_follow_recoil load_rpdflw
+
+// Rifle (Slot 1): Follow-recoil
+// Pistol (Slot 2): Rapid fire + Follow-recoil
+```
+
+## File Structure
+
+```
+csafap/crosshair/
+├── followrecoil.cfg                      # Follow-recoil only
+├── followrecoil_lefthanded.cfg           # Left-handed version
+├── followrecoil_righthanded.cfg          # Right-handed version
+├── rapid_followrecoil.cfg                # Rapid + follow-recoil
+├── rapid_followrecoil_lefthanded.cfg     # Left-handed version
+├── rapid_followrecoil_righthanded.cfg    # Right-handed version  
+├── rapid_followrecoil_lessthan150FPS.cfg # Low FPS version
+├── crosshair_mode/
+│   ├── rpd.cfg                          # Rapid mode
+│   ├── rpd_cmd.cfg                      # Rapid commands
+│   ├── rpd_labels.cfg                   # Rapid labels
+│   ├── flw.cfg                          # Follow mode
+│   ├── flw_cmd.cfg                      # Follow commands
+│   ├── flw_labels.cfg                   # Follow labels
+│   ├── rpdflw.cfg                       # Combined mode
+│   ├── rpdflw_cmd.cfg                   # Combined commands
+│   └── rpdflw_labels.cfg                # Combined labels
+└── pro/
+    ├── crosshairs.cfg                   # Main pro crosshairs
+    ├── crosshairs_1.cfg                 # Additional crosshairs
+    ├── crosshairs_2.cfg                 # More crosshairs
+    ├── crosshair_cmd.cfg                # Crosshair commands
+    ├── crosshair_labels.cfg             # Crosshair labels
+    └── crosshair_[2-6]_*.cfg            # Crosshair groups
+```
+
+## Related Pages
+
+- [Main Config](/reference/main-config) - Enable crosshair features
+- [Movement Configs](/reference/movement-configs) - Movement configurations
+- [Map Configs](/reference/map-configs) - Map-specific setups

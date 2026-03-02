@@ -1,0 +1,333 @@
+---
+title: Ticker System Mechanics
+description: Understanding AveYo's frame-perfect ticker implementation that enables CS:GO-like jumpthrow binds and null movement in CS2.
+---
+
+The CSAFAP Config Package uses AveYo's ticker system to execute alias chains every frame, enabling binds that require frame-perfect timing. This system is critical for jumpthrow binds, null movement, and rapid-fire mechanics.
+
+## What is the Ticker?
+
+The ticker is a `.vtest` script file that runs every frame, calling specific aliases at precise intervals. It leverages CS2's `-testscript` launch option to execute code outside the normal command queue.
+
+### Launch Option Requirement
+
+From README.md installation (csafap/addons/.vtest:2):
+
+```bash
+-testscript "../../csgo/cfg/CSAFAP/addons/.vtest"
+```
+
+This tells CS2 to execute `.vtest` file continuously during gameplay.
+
+## The .vtest File
+
+From csafap/addons/.vtest:
+
+```vtest
+/// Credit and thanks to AveYo
+/// use launch option: -testscript "../../csgo/cfg/CSAFAP/addons/.vtest"
+
+Test_WaitForCheckPoint frame_end
+
+W!
+W!
+A!
+A!
+S!
+S!
+D!
+D!
+
+M1!
+M2!
+
+CJ!
+CJ!
+
+JT!
+JT!
+JT!
+JT!
+
+J!
+
+/// AveYo: add one or more to reduce fps impact at the cost of responsiveness
+//Test_RunFrame
+
+/// AveYo: loop each frame; repeated entries above are chaining multiple alias substitutions
+Test_Run
+```
+
+### How It Works
+
+1. **`Test_WaitForCheckPoint frame_end`**: Synchronizes to frame end
+2. **Alias calls** (e.g., `W!`, `M1!`, `JT!`): Execute in order
+3. **Repeated calls**: Chain multiple alias substitutions in single frame
+4. **`Test_Run`**: Loops back to beginning, running every frame
+
+**Key insight**: Each alias (like `W!`) is called **twice** because a single alias substitution can only change one level deep per frame. Calling twice allows chained state transitions.
+
+## Jumpthrow Implementation
+
+### Basic Jumpthrow
+
+From csafap/addons/AveYo.cfg:4-7:
+
+```cfg
+alias +JumpThrow alias JT! JT+1; 
+alias -JumpThrow alias JT! JT-1; 
+alias JT! ""
+
+alias JT+1 "M1>; alias JT! JT+2"; 
+alias JT+2 "M2>; alias JT! JT+3"; 
+alias JT+3 "alias JT!; +jump"
+
+alias JT-1 "jump -9999 f u; alias JT!"
+```
+
+**State Machine Flow:**
+
+**On key press** (`+JumpThrow`):
+1. Set `JT!` to `JT+1`
+2. Next frame: Ticker calls `JT!` → executes `JT+1` → calls `M1>` (release attack1), sets `JT!` to `JT+2`
+3. Next frame: Ticker calls `JT!` → executes `JT+2` → calls `M2>` (release attack2), sets `JT!` to `JT+3`
+4. Next frame: Ticker calls `JT!` → executes `JT+3` → activates `+jump`, clears `JT!`
+
+**On key release** (`-JumpThrow`):
+1. Set `JT!` to `JT-1`
+2. Next frame: Ticker calls `JT!` → executes `JT-1` → deactivates jump with `jump -9999 f u`, clears `JT!`
+
+**Result**: The grenade releases exactly when jump activates, replicating CS:GO's jumpthrow timing.
+
+### W-Jumpthrow
+
+From csafap/addons/AveYo.cfg:9-13:
+
+```cfg
+alias +WJumpThrow alias JT! WT+1; 
+alias -WJumpThrow alias JT! WT-1; 
+alias JT! ""
+
+alias WT+1 "+forward; alias JT! WT+2"; 
+alias WT+2 "M1>; alias JT! WT+3"; 
+alias WT+3 "M2>;alias JT! WT+4"
+alias WT+4 "alias JT!;+jump"
+
+alias WT-1 "forward -9999 f u; alias JT! WT-2"; 
+alias WT-2 "alias JT!; jump -9999 f u"
+```
+
+**Adds forward movement** before jump:
+1. Frame 1: `+forward`
+2. Frame 2: Release `M1>`
+3. Frame 3: Release `M2>`
+4. Frame 4: `+jump`
+
+On release:
+1. Frame 1: Cancel forward movement
+2. Frame 2: Cancel jump
+
+## Mouse Button Ticker Integration
+
+Jumpthrow requires special mouse binds (csafap/addons/AveYo.cfg:15-20):
+
+```cfg
+// Jumpthrow bind requirements: bind MOUSE1 +M1; bind MOUSE2 +M2
+
+alias +M1 alias M1! M1+; 
+alias -M1 alias M1! M1-; 
+alias M1! ""; 
+alias M1> ""
+
+alias M1+ "alias M1!; alias M1> -attack; +attack"; 
+alias M1- "alias M1!; alias M1>; attack -9999 f u; spec_next"
+
+alias +M2 alias M2! M2+; 
+alias -M2 alias M2! M2-; 
+alias M2! ""; 
+alias M2> ""
+
+alias M2+ "alias M2!; alias M2> -attack2; +attack2"; 
+alias M2- "alias M2!; alias M2>; attack2 -9999 f u; spec_prev"
+```
+
+**How `M1>` and `M2>` work:**
+- When you click mouse1, `+M1` sets `M1>` to `-attack`
+- When jumpthrow calls `M1>`, it executes `-attack` (releases grenade)
+- After release, `M1>` is cleared back to empty
+
+**Important**: `spec_next` and `spec_prev` preserve spectator functionality when mouse buttons are released.
+
+## Null Movement Binds
+
+From csafap/addons/AveYo.cfg:27-42:
+
+```cfg
+// Null binds: bind W +nullW; bind A +nullA; bind S +nullS; bind D +nullD
+
+alias +nullW alias W! W+1; 
+alias -nullW alias W! W-1; 
+alias W! ""; 
+alias W< ""; 
+alias W> ""
+
+alias W+1 "W<; alias W! W+2"; 
+alias W+2 "alias W!; alias S< forward -9999 f u; alias S> +forward; +forward"
+
+alias W-1 "forward -9999 f u; alias W! W-2"; 
+alias W-2 "alias W!; alias S< +back; alias S>; W>"
+```
+
+**State Machine Logic:**
+
+**When W is pressed:**
+1. `+nullW` sets `W!` to `W+1`
+2. Next frame: `W+1` calls `W<` (empty initially), sets `W!` to `W+2`
+3. Next frame: `W+2` activates `+forward`, and sets `S<` and `S>` aliases:
+   - `S<` = cancel forward movement
+   - `S>` = activate forward movement
+
+**When S is pressed while W is held:**
+1. `+nullS` triggers similar chain
+2. Calls `W<` which now equals `forward -9999 f u` (from S's setup)
+3. Cancels forward movement instantly
+4. Activates backward movement instead
+
+**Result**: Pressing opposite direction keys cancels the first key's action, enabling "Snap-Tap" null movement.
+
+### Why Dual Aliases (`<` and `>`)
+
+- **`W<`/`S<`/`A<`/`D<`**: Called by opposite key to cancel current movement
+- **`W>`/`S>`/`A>`/`D>`**: Called on key release to restore previous movement state
+
+This creates proper priority: last pressed key wins.
+
+## Crouch Jump
+
+From csafap/addons/AveYo.cfg:22-25:
+
+```cfg
+alias +CrouchJump alias CJ! CJ+; 
+alias -CrouchJump alias CJ! CJ-; 
+alias CJ! ""
+
+alias CJ+ "+duck; alias CJ! CJ++"; 
+alias CJ++ "+jump; alias CJ!"
+alias CJ- "duck -9999 f u; alias CJ! CJ--"; 
+alias CJ-- "alias CJ!; jump -9999 f u"
+```
+
+**On press:**
+1. Frame 1: `+duck`
+2. Frame 2: `+jump`
+
+**On release:**
+1. Frame 1: Cancel duck
+2. Frame 2: Cancel jump
+
+Ensures crouch activates one frame before jump for maximum height.
+
+## Performance Impact
+
+From csafap/addons/.vtest:28-29:
+
+```vtest
+/// AveYo: add one or more to reduce fps impact at the cost of responsiveness
+//Test_RunFrame
+```
+
+**Options:**
+- **No `Test_RunFrame`**: Runs every frame (highest responsiveness, small FPS cost)
+- **One `Test_RunFrame`**: Runs every 2nd frame (lower responsiveness, better FPS)
+- **Multiple `Test_RunFrame`**: Further reduces frequency
+
+Default configuration omits `Test_RunFrame` for maximum responsiveness.
+
+## Ticker vs. Radio Wheel Binds
+
+The CSAFAP package uses **two different bind systems**:
+
+| Feature | Ticker Binds | Radio Wheel Binds |
+|---------|-------------|------------------|
+| **Implementation** | .vtest + AveYo.cfg | logic.cfg alias chains |
+| **Use Case** | Frame-perfect timing | Multi-phase selection |
+| **Examples** | Jumpthrow, null WASD | Line-up selection, pro crosshairs |
+| **Frame Precision** | ✅ Yes | ❌ No |
+| **State Persistence** | Cleared each frame | Persists across frames |
+| **Launch Option** | Required | Not required |
+
+## Common Issues
+
+### Console Spam: `Unknown command: W!...`
+
+From README.md Q20:
+
+**Cause**: The ticker aliases (`W!`, `M1!`, etc.) aren't initialized before the `.vtest` script starts.
+
+**Solution**: 
+1. Ensure `+exec csafap/main` is in launch options
+2. Check for long alias commands that might break the exec queue
+3. Verify `.vtest` file has correct name (literally `.vtest`, not `vtest.vtest`)
+
+### Movement/Mouse Buttons Don't Work
+
+From README.md Q21:
+
+**Cause**: Same as console spam - ticker initialized before binds loaded.
+
+**Solution**: 
+1. Remove `-testscript` from launch options temporarily
+2. Check console for errors after `exec csafap/main`
+3. Fix any alias that's too long or malformed
+4. Add `-testscript` back once all aliases load successfully
+
+### Rapid Fire/Follow Recoil Not Working
+
+From README.md Q18:
+
+**Framerate dependency**: 
+- Default config requires 150+ FPS
+- For &lt;150 FPS: rename `rapid_followrecoil_lessthan150FPS.cfg` to `rapid_followrecoil.cfg`
+
+Ticker timing is frame-dependent, so low FPS breaks frame-perfect sequences.
+
+## Technical Deep Dive
+
+### Why `-9999 f u`?
+
+Commands like `jump -9999 f u` instantly deactivate the command:
+- The `-9999` is an extreme negative value
+- `f u` are flags (exact meaning undocumented by Valve)
+- Together they force immediate deactivation, overriding any queued actions
+
+### Alias Substitution Depth Limit
+
+CS2 only allows **one level** of alias substitution per frame. Example:
+
+```cfg
+alias test1 "alias test2 new_value"
+alias test2 "old_value"
+test1  // Sets test2 to new_value
+test2  // Still executes old_value in the same frame!
+```
+
+This is why `.vtest` calls each alias **twice** - the first call changes the alias, the second call executes the new value.
+
+### Frame Timing
+
+- **`frame_end`**: Ticker runs after game logic but before rendering
+- **Render time**: ~6-16ms at 60-165 FPS
+- **Ticker overhead**: &lt;0.1ms per frame
+
+This ensures ticker actions take effect before the next frame's input processing.
+
+## Advantages Over Multi-Input Binds
+
+Valve patched multi-input binds (Oct 28, 2024) where `bind key "+action1; +action2"` would only execute first action.
+
+Ticker system **bypasses this** by:
+1. Storing state in aliases (e.g., `JT!`)
+2. Ticker executing state machine steps across multiple frames
+3. Each frame issues only one `+action`, legal per Valve's rules
+
+This is why jumpthrow still works post-patch while old methods don't.

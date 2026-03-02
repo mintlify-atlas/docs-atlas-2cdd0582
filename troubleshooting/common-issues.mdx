@@ -1,0 +1,218 @@
+---
+title: Common Issues
+description: Solutions to frequently encountered problems with the CSAFAP Config Package
+---
+
+## Config Rejected by Game
+
+<Warning>
+If you experience config rejection errors, the config may be executed at the wrong time or place.
+</Warning>
+
+**Solution:**
+
+Launch your personal autoexec config using the launch option `+exec cfgname` and at the bottom of that config use `exec csafap/main`.
+
+Also, **don't exec the configs while already on a server**. Run them from the main menu (or, as explained above, on game launch) instead.
+
+## Radio Tiles Are Empty/Blank
+
+If the radio wheel tiles appear empty without any text labels:
+
+**Solution:**
+
+Make sure to follow step 2 of the installation instructions by copying the `csgo` folder from the `csafap` directory to your game's installation path.
+
+This places `../csafap/csgo/resource/platform_english.txt` in the correct folder:
+
+```
+C:\Program Files (x86)\Steam\steamapps\common\Counter-Strike Global Offensive\game\csgo\resource\platform_english.txt
+```
+
+<Warning>
+Edits to the `platform_english.txt` file require a game restart to take effect.
+</Warning>
+
+You can debug by typing `cl_radialradio` into the console and checking the autofill options.
+
+## Cursor Displacement on Radio Wheel
+
+The radio wheel selects the wrong tile (one next to where you're aiming).
+
+**Cause:**
+
+This occurs when playing on windowed or fullscreen-windowed mode while NOT on native resolution.
+
+**Solutions:**
+
+### Option 1: Match Desktop Resolution
+
+Change your desktop resolution to match your in-game resolution before launching the game. This [CS2 launcher PowerShell script](https://old.reddit.com/r/GlobalOffensive/comments/1g56n34/cs2_launcher_script_update/) can do that automatically.
+
+### Option 2: Wait for Text to Disappear
+
+Before selecting the radio wheel tile, move your mouse over the desired tile **after the text disappears**.
+
+### Option 3: Adjust Mouse Placement
+
+The cursor gets displaced to the right after pressing the keybind again. Place your mouse more to the left on the tile. Pulling outside of the circle helps, as the tiles extend to the edge of the screen at that moment.
+
+## Sensitivity Changes to 1.0
+
+Your sensitivity changes to 1.0 and doesn't switch back to your playing sensitivity.
+
+**Solution:**
+
+Set your sensitivity at the top of `csafap/main.cfg`. Auto sensitivity detection was patched by Valve.
+
+## Can't Jump (Reset Jump Binds)
+
+<Warning>
+If you used pre-patch binds after the October 28, 2024 update, your jump may be broken.
+</Warning>
+
+The [update of October 28, 2024](https://steamcommunity.com/games/CSGO/announcements/detail/4522269457743085933) patched multi-input methods, meaning only the first action of a bind is issued and the rest ignored.
+
+Using a pre-patch de-subtick jump bind now uses `+jump` but does NOT issue `-jump`, preventing you from jumping again.
+
+**Short-term fix:**
+
+Type this in console (use multiple times if you spammed the old bind):
+
+```
+jump -999 0 0
+```
+
+or:
+
+```
+-jump
+```
+
+**Long-term fix:**
+
+Use working jump binds by either:
+- Resetting your binds to default: `bind mwheeldown +jump`
+- Using the newest version of the CSAFAP config package
+
+## Stop Moving Forward After W-Jumpthrow
+
+You can't stop moving forward after using the W-Jumpthrow bind.
+
+**Cause:**
+
+When using the W-JT bind, `-forward` has to be used with a delay. If the action doesn't cancel properly, you'll continue moving forward.
+
+**Short-term fix:**
+
+Switching to your knife by pressing `3` or moving your crosshair should reset this action. If not, use this in console:
+
+```
+forward -999 0 0
+```
+
+**Long-term fix:**
+
+Make sure the same command is saved in `csafap/addons/-forward.cfg`, which should be called by an alias bound to key `3`, as well as `mouse_x` and `mouse_y` after using the WJT bind.
+
+## Stop Running When Using Jumpthrow Binds
+
+You stop running when attempting to use jumpthrow binds.
+
+**Cause:**
+
+This is caused by the W-bind of NullWASD.
+
+**Solution:**
+
+Use default movement for JT, or change `csafap/movement/nullWASD.cfg` to use `bind W +forward` instead.
+
+Alternatively, set up a macro for Jumpthrow and use the config bind for WJT. See: https://youtu.be/yqtJZFQSF_U
+
+## Right-Click Not Working on Scoreboard
+
+Right-click doesn't work when viewing the scoreboard.
+
+**Solution:**
+
+If you're using JT, WJT, rapid fire, or follow-recoil features with `bind mouse2 +M2`, use:
+
+```
+cl_scoreboard_mouse_enable_binding +M2
+```
+
+If you're using default `bind mouse2 +attack2`, use:
+
+```
+cl_scoreboard_mouse_enable_binding +attack2
+```
+
+## Game Crashes on Disconnect or Changelevel
+
+**Solution:**
+
+Make sure not to exec `csafap/main` after the initial exec on game launch. The config should only be executed once at startup using the launch option.
+
+## Movement Keys and Mouse Buttons Not Working
+
+<Warning>
+This is a critical issue that prevents all input.
+</Warning>
+
+Movement keys (WASD) and mouse buttons no longer work after installing the config.
+
+**Cause:**
+
+The launch option `-testscript "../../csgo/cfg/csafap/addons/.vtest"` spawns ticker aliases every frame. If these aliases aren't assigned on game launch, movement and mouse binds using the ticker function won't work.
+
+**Solution:**
+
+We initialize these aliases on game launch using `+exec csafap/main`, but if a command is too long (for example `alias reset_crosshair "..."` at the bottom of `csafap/main.cfg`), the exec queue will exit, causing this issue.
+
+To debug:
+1. Remove the vtest launch option temporarily
+2. Check console output directly after game launch or `exec csafap/main`
+3. Look for potential errors after loading the config initially
+
+## Console Spam: "Unknown command: W!..."
+
+The console is flooded with `Unknown command: W!...` messages.
+
+**Cause:**
+
+Same root cause as movement keys not working - the ticker aliases are not properly initialized.
+
+**Solution:**
+
+See the solution for "Movement Keys and Mouse Buttons Not Working" above.
+
+## Rapid Fire and/or Follow Recoil Not Working
+
+**Troubleshooting steps:**
+
+1. **Verify requirements:**
+   - Using launch option: `-testscript "../../csgo/cfg/CSAFAP/addons/.vtest"`
+   - Set `ef_...` binds in `csafap/main.cfg`
+
+2. **Check framerate:**
+   These features are framerate dependent and work at >150 FPS by default.
+   
+   If you get less than 150 FPS, rename:
+   ```
+   csafap/crosshair/rapid_followrecoil_lessthan150FPS.cfg
+   ```
+   to:
+   ```
+   csafap/crosshair/rapid_followrecoil.cfg
+   ```
+
+3. **Verify weapon:**
+   Rapid fire is only enabled for pistols. Take out your pistol (by pressing the keybind assigned to `ef_slot2`) after activating the feature.
+
+## Grenades Fire Automatically When Switching
+
+Grenades fire automatically as soon as you switch to them when using crosshair and rapid fire features.
+
+**Solution:**
+
+You must use the `ef_...` binds at the bottom of `csafap/main.cfg`, as they are required for follow-recoil and rapid fire features.

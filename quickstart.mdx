@@ -1,80 +1,165 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: 'Quickstart'
+description: 'Get up and running with CSAFAP in minutes'
 ---
 
-## Get started in three steps
+This quickstart guide will help you use the CSAFAP config package immediately after installation.
 
-Get your documentation site running locally and make your first customization.
+## Prerequisites
 
-### Step 1: Set up your local environment
+Before starting, make sure you've completed the [installation](/installation) steps.
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
+## Using radio wheels
+
+The CSAFAP config package uses radio wheels to access features. Here's how they work:
+
+<Steps>
+  <Step title="Press the keybind">
+    Press one of the four radio wheel keybinds (default: H, J, K, or M)
+  </Step>
+  
+  <Step title="Hover over option">
+    Move your mouse over the tile you want to select
+  </Step>
+  
+  <Step title="Press keybind again">
+    Press and release the **same key as before** to execute the command
     
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
+    <Note>Clicking does nothing - you must press the keybind again</Note>
+  </Step>
+</Steps>
+
+## Default keybinds
+
+<CardGroup cols={2}>
+  <Card title="H - CT Line-ups" icon="shield">
+    CT-side instant smokes and wallbangs
+  </Card>
+  
+  <Card title="J - T Line-ups" icon="gun">
+    T-side instant smokes and wallbangs
+  </Card>
+  
+  <Card title="K - Crosshairs & Movement" icon="crosshairs">
+    Pro crosshairs, rapid fire, follow-recoil, snap-tap/null binds
+  </Card>
+  
+  <Card title="M - Maps & Practice" icon="map">
+    Map selection and practice mode activation
+  </Card>
+</CardGroup>
+
+## Your first auto line-up
+
+Let's try an instant smoke on Mirage:
+
+<Steps>
+  <Step title="Select your map">
+    1. Press **M** to open the map wheel
+    2. Hover over Mirage
+    3. Press **M** again to select
+  </Step>
+  
+  <Step title="Open CT wheel">
+    Press **H** to open the CT line-ups wheel
     
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+    <Info>Make sure you have a smoke grenade equipped or it will auto-equip</Info>
+  </Step>
+  
+  <Step title="Select a smoke">
+    1. Hover over "Instant Window" (or any line-up)
+    2. Press **H** again
+    3. Your view will snap to the correct angle automatically
+  </Step>
+  
+  <Step title="Throw the smoke">
+    Press your throw key (default: mouse1) to throw the perfect smoke
+  </Step>
+</Steps>
 
-### Step 2: Deploy your changes
+<Tip>
+You can scroll your mouse wheel while the radio wheel is open to access 2 additional pages of line-ups!
+</Tip>
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
+## Try practice mode
+
+Practice mode gives you access to 1,000+ line-ups with in-game map guides:
+
+<Steps>
+  <Step title="Enable practice mode">
+    1. Press **M** for the map wheel
+    2. Select "Enable Prac-Mode"
+    3. Select your map
+  </Step>
+  
+  <Step title="Access practice features">
+    - **H key**: CT-side spawn teleports
+    - **J key**: Practice commands (sv_cheats commands, god mode, infinite ammo, etc.)
     
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+    The radio wheels now show practice mode options instead of auto line-ups
+  </Step>
+  
+  <Step title="Load map guides">
+    In-game annotations will load showing you 1,000+ line-up positions for both CT and T sides
+  </Step>
+</Steps>
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+<Warning>
+Practice mode requires `sv_cheats 1` and works offline or on community servers with cheats enabled
+</Warning>
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+## Using movement configs
 
-### Step 3: Go live
+Try the null binds (Snap-Tap alternative):
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+1. Press **K** to open the crosshair wheel
+2. Select "Null Binds ON"
+3. Your WASD keys now use null cancellation for faster counter-strafing
+
+To disable: Press **K** again and select "Null Binds OFF"
 
 ## Next steps
 
-Now that you have your docs running, explore these key features:
-
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Customize Keybinds" icon="keyboard" href="/customization/keybinds">
+    Change the default H, J, K, M keys to your preference
+  </Card>
+  
+  <Card title="Explore Features" icon="sparkles" href="/features/overview">
+    Learn about all available features in detail
+  </Card>
+  
+  <Card title="Map Guides" icon="map-location-dot" href="/maps/overview">
+    See all available line-ups for each competitive map
+  </Card>
+  
+  <Card title="Troubleshooting" icon="circle-question" href="/troubleshooting/faq">
+    Common issues and solutions
+  </Card>
 </CardGroup>
 
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>
+## Common first-time issues
+
+<AccordionGroup>
+  <Accordion title="Radio wheel tiles are blank/empty" icon="square">
+    You didn't complete Step 2 of installation. Copy the `csgo` folder from `csafap/` to your game's installation path and restart CS2.
+  </Accordion>
+  
+  <Accordion title="Selecting wrong radio tile" icon="cursor">
+    This happens in windowed mode at non-native resolution. Either:
+    - Switch to fullscreen mode
+    - Change desktop resolution to match in-game resolution
+    - Move your mouse more to the left on tiles before selecting
+  </Accordion>
+  
+  <Accordion title="Sensitivity changes to 1.0" icon="arrows-left-right">
+    You didn't set your sensitivity in `csafap/main.cfg`. Open the file and change line 6:
+    ```cfg
+    alias resetsens "sensitivity YOUR_SENS_HERE"
+    ```
+  </Accordion>
+  
+  <Accordion title="Can't jump after using jumpthrow" icon="person-falling">
+    You used an outdated jumpthrow bind. Update to the latest CSAFAP version. Quick fix: Type `-jump` in console multiple times.
+  </Accordion>
+</AccordionGroup>

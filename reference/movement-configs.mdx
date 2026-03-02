@@ -1,0 +1,324 @@
+---
+title: "Movement Configurations"
+description: "Complete reference for movement binds including default WASD, null binds, and desubtick configurations"
+---
+
+## Overview
+
+The movement configuration system provides multiple movement styles including standard WASD, null binds for counter-strafing, and desubtick binds for better movement timing.
+
+## File Location
+
+```
+csafap/movement/
+```
+
+## Movement Modes
+
+### Default Movement
+
+Standard WASD movement binds with no modifications.
+
+<ParamField path="csafap/movement/default.cfg" type="file">
+  Basic WASD movement configuration.
+  
+  **Configuration:**
+  ```cfg
+  bind w +forward;
+  bind a +left;
+  bind s +back;
+  bind d +right;
+  bind mouse_x yaw;
+  bind mouse_y pitch;
+  rightleft 0 0 0;
+  forwardback 0 0 0;
+  ```
+  
+  **Activation:**
+  ```cfg
+  exec csafap/movement/default
+  ```
+</ParamField>
+
+### Null Binds (WASD)
+
+<Info>
+Null binds automatically cancel opposite direction inputs for perfect counter-strafing.
+Requires launch option: `-testscript "../../csgo/cfg/csafap/addons/.vtest"`
+</Info>
+
+<ParamField path="csafap/movement/nullWASD.cfg" type="file">
+  Advanced null movement binds using ticker technology.
+  
+  **How It Works:**
+  - Pressing W while holding S automatically cancels S input
+  - Pressing A while holding D automatically cancels D input
+  - Creates instant counter-strafing without manual input timing
+  
+  **Implementation:**
+  ```cfg
+  // W Key (Forward/Back null)
+  alias +nullW alias W! W+1
+  alias -nullW alias W! W-1
+  alias W+1 "W<; alias W! W+2"
+  alias W+2 "alias W!; alias S< forward -9999 f u; alias S> +forward; +forward"
+  alias W-1 "forward -9999 f u; alias W! W-2"
+  alias W-2 "alias W!; alias S< +back; alias S>; W>"
+  
+  bind W +nullW
+  ```
+  
+  Similar logic applies to A, S, and D keys.
+  
+  **Activation:**
+  ```cfg
+  exec csafap/movement/nullWASD
+  ```
+  
+  Or in MAIN.cfg:
+  ```cfg
+  alias load_movement load_null
+  ```
+</ParamField>
+
+### Desubtick Binds (WASD)
+
+<Info>
+Desubtick binds optimize movement timing for better responsiveness.
+Requires launch option: `-testscript "../../csgo/cfg/csafap/addons/.vtest"`
+</Info>
+
+<ParamField path="csafap/movement/desubtickWASD.cfg" type="file">
+  Optimized movement binds that work with CS2's subtick system.
+  
+  **Implementation:**
+  ```cfg
+  // W Key
+  alias +desubW "alias W! W+1"
+  alias -desubW "alias W! W-1"
+  alias W! ""
+  alias W+1 "alias W! W+2"
+  alias W+2 "alias W!; forward -9999 f u; +forward"
+  alias W-1 "forward -9999 f u; alias W! W-2"
+  alias W-2 "alias W!; -forward"
+  
+  bind W +desubW
+  ```
+  
+  **Activation:**
+  ```cfg
+  exec csafap/movement/desubtickWASD
+  ```
+  
+  Or in MAIN.cfg:
+  ```cfg
+  alias load_movement load_desub
+  ```
+</ParamField>
+
+## Viewmodel Toggle System
+
+Dynamically toggle viewmodel visibility during gameplay.
+
+### Viewmodel ON
+
+<ParamField path="csafap/movement/viewmodel_on.cfg" type="file">
+  Configuration for viewmodel enabled state.
+  
+  ```cfg
+  alias viewmodel_labels "exec csafap/movement/viewmodel_off_labels"
+  alias viewmodel_cmd "exec csafap/movement/viewmodel_off_cmd"
+  alias vm ""
+  ```
+</ParamField>
+
+### Viewmodel OFF
+
+<ParamField path="csafap/movement/viewmodel_off.cfg" type="file">
+  Configuration for viewmodel disabled state.
+  
+  Allows you to hide your weapon viewmodel for cleaner screen visibility.
+</ParamField>
+
+## Advanced Movement Commands
+
+### Null Bind Command Structure
+
+Each null bind uses a state machine pattern:
+
+<CodeGroup>
+```cfg W Key States
+alias +nullW alias W! W+1    // Key pressed
+alias -nullW alias W! W-1    // Key released
+alias W! ""                  // Current state (empty by default)
+```
+
+```cfg A Key States  
+alias +nullA alias A! A+1    // Key pressed
+alias -nullA alias A! A-1    // Key released
+alias A! ""                  // Current state
+```
+
+```cfg S Key States
+alias +nullS alias S! S+1    // Key pressed
+alias -nullS alias S! S-1    // Key released  
+alias S! ""                  // Current state
+```
+
+```cfg D Key States
+alias +nullD alias D! D+1    // Key pressed
+alias -nullD alias D! D-1    // Key released
+alias D! ""                  // Current state
+```
+</CodeGroup>
+
+### Desubtick Command Structure
+
+<CodeGroup>
+```cfg W Key (Desubtick)
+alias +desubW "alias W! W+1"
+alias -desubW "alias W! W-1"
+alias W+1 "alias W! W+2"
+alias W+2 "alias W!; forward -9999 f u; +forward"
+alias W-1 "forward -9999 f u; alias W! W-2"
+alias W-2 "alias W!; -forward"
+```
+
+```cfg A Key (Desubtick)
+alias +desubA "alias A! A+1"
+alias -desubA "alias A! A-1"
+alias A+1 "alias A! A+2"
+alias A+2 "alias A!; left -9999 f u; +left"
+alias A-1 "left -9999 f u; alias A! A-2"
+alias A-2 "alias A!; -left"
+```
+</CodeGroup>
+
+## Movement Labels and Commands
+
+The system uses label and command pairs for radio wheel integration:
+
+<ParamField path="null_labels" type="alias">
+  Controls the displayed text for null bind status.
+  
+  ```cfg
+  alias null_labels exec_null_on_labels  // Shows "NULL: ON"
+  alias null_labels exec_null_off_labels // Shows "NULL: OFF"
+  ```
+</ParamField>
+
+<ParamField path="null_cmd" type="alias">
+  Controls the executable command for null bind toggle.
+  
+  ```cfg
+  alias null_cmd exec_null_on_cmd   // Enables null binds
+  alias null_cmd exec_null_off_cmd  // Disables null binds
+  ```
+</ParamField>
+
+## Radio Wheel Integration
+
+Movement modes can be toggled via the radio wheel interface:
+
+```cfg
+// Null binds radio tile
+cl_radial_radio_tab_1_text_4 cmd";exec csafap/movement/desubtickWASD;
+```
+
+## Usage Examples
+
+### Example 1: Enable Null Binds at Launch
+
+In `MAIN.cfg`:
+```cfg
+alias load_movement load_null
+```
+
+### Example 2: Enable Desubtick Binds at Launch
+
+In `MAIN.cfg`:
+```cfg
+alias load_movement load_desub
+```
+
+### Example 3: Switch to Default Movement
+
+In console or via keybind:
+```cfg
+exec csafap/movement/default
+```
+
+### Example 4: Manual Null Bind Toggle
+
+```cfg
+// Bind a key to toggle null binds
+bind "F1" "exec csafap/movement/nullWASD"
+bind "F2" "exec csafap/movement/default"
+```
+
+## Technical Details
+
+### Ticker Technology
+
+<Warning>
+Null and desubtick binds require the `-testscript` launch option to access ticker functionality.
+</Warning>
+
+The ticker system uses the `f u` flags with negative values to create frame-perfect input timing:
+
+```cfg
+forward -9999 f u  // Cancels forward movement at frame-perfect timing
+left -9999 f u     // Cancels left movement at frame-perfect timing
+```
+
+### Movement Command Priority
+
+When opposite keys are pressed:
+1. New key press triggers state change
+2. Opposite direction is cancelled via `-9999 f u`
+3. New direction is activated
+4. State machine updates for next input
+
+### Mouse Bindings
+
+```cfg
+bind mouse_x yaw    // Horizontal mouse movement
+bind mouse_y pitch  // Vertical mouse movement
+```
+
+### Movement Zeroing
+
+```cfg
+rightleft 0 0 0    // Zeros horizontal strafe movement
+forwardback 0 0 0  // Zeros forward/backward movement
+```
+
+## File Structure
+
+```
+csafap/movement/
+├── default.cfg                   # Standard WASD
+├── nullWASD.cfg                  # Null binds (ticker)
+├── nullWASD_noticker.cfg         # Null binds (no ticker)
+├── desubtickWASD.cfg             # Desubtick binds
+├── null_on_cmd.cfg               # Null enable command
+├── null_on_labels.cfg            # Null ON labels
+├── null_off_cmd.cfg              # Null disable command
+├── null_off_labels.cfg           # Null OFF labels
+├── desubtick_on_cmd.cfg          # Desubtick enable command
+├── desubtick_on_labels.cfg       # Desubtick ON labels
+├── viewmodel_on.cfg              # Viewmodel visible
+├── viewmodel_on_cmd.cfg          # Viewmodel ON command
+├── viewmodel_on_labels.cfg       # Viewmodel ON labels
+├── viewmodel_off.cfg             # Viewmodel hidden
+├── viewmodel_off_cmd.cfg         # Viewmodel OFF command
+├── viewmodel_off_labels.cfg      # Viewmodel OFF labels
+├── movement_cmd.cfg              # Movement commands
+└── movement_labels.cfg           # Movement labels
+```
+
+## Related Pages
+
+- [Main Config](/reference/main-config) - Configure movement mode at launch
+- [Crosshair Configs](/reference/crosshair-configs) - Crosshair and recoil features
+- [Map Configs](/reference/map-configs) - Map-specific configurations

@@ -1,0 +1,335 @@
+---
+title: 'Crosshair & Viewmodel'
+description: 'Pro player crosshairs and viewmodels from top 20 CS2 teams'
+---
+
+Access crosshair and viewmodel settings from professional CS2 players across the top 20 teams. Instantly apply pro configurations to test different styles.
+
+## Available Pro Crosshairs
+
+The config includes 50+ professional player crosshairs and viewmodels:
+
+### Vitality
+- **apEX**: Green, size 1.5, gap -3
+- **ZywOo**: Cyan, size 1.5, gap -3, thickness 0.1
+- **flameZ**: Dynamic style 2 with dot
+- **mezii**: Size 1, gap -4
+
+### FaZe Clan  
+- **karrigan**: Cyan, size 1, gap -4
+- **frozen**: Green outline, size 1, gap -4
+- **Twistzz**: Size 2, gap -7, weapon value enabled
+- **broky**: White, size 3, gap -3
+- **jcobbb**: White with outline, sniper width 2
+
+### G2 Esports
+- **NiKo**: Cyan/green, size 1, gap -4  
+- **m0NESY**: Green, size 1, gap -4
+- **huNter-**: White, size 1, gap -3
+- **malbsMd**: Outline style, size 1, gap -2
+
+### MOUZ
+- **Brollan**: White outline, size 2, gap -3
+- **torzsi**: Purple, size 2, gap -3
+- **Jimpphat**: White, size 1, gap -4
+- **xertioN**: Thick white, size 1, gap -5
+
+### Natus Vincere
+- **Aleksib**: Green, size 1, gap -4
+- **iM**: White, size 2, gap -2  
+- **b1t**: White, size 1, gap -4
+- **w0nderful**: Cyan, size 1, gap -4
+
+### Spirit
+- **sh1ro**: Cyan, size 0.9, gap -2.9
+- **donk**: Small with dot, white, size 0.5
+- **magixx**: White, size 1, gap -4
+- **zont1x**: Large white, size 2.5, gap -2.5
+
+### Liquid  
+- **NAF**: Green, size 2, gap -3
+- **EliGE**: Dot only with outline, cyan
+- **ultimate**: Size 1.5, gap -3
+- **NertZ**: Green, size 2, gap -3
+
+And many more from teams like ENCE, Falcons, HEROIC, Complexity, and others.
+
+## Using Pro Crosshairs
+
+<Steps>
+  <Step title="Open Crosshair Wheel">
+    Press your crosshair wheel key (default: **K**)
+  </Step>
+  
+  <Step title="Navigate Pages">
+    Scroll mouse wheel to access different pages of pro crosshairs
+  </Step>
+  
+  <Step title="Select Player">
+    Hover over the player name and press K again to apply their crosshair
+  </Step>
+  
+  <Step title="Test & Compare">
+    Try different pros' crosshairs to find one that suits your style
+  </Step>
+</Steps>
+
+<Tip>
+You can switch crosshairs instantly in-game. Try different styles during warmup to find your preference.
+</Tip>
+
+## Crosshair Configuration Format
+
+Each pro crosshair is defined as an alias:
+
+```cfg
+// Example: ZywOo's crosshair (from csafap/crosshair/pro/crosshairs.cfg)
+alias ZywOo "alias proch ZywOo; \
+  cl_crosshairstyle 4; \
+  cl_crosshair_recoil 0; \
+  cl_crosshairdot 0; \
+  cl_crosshairsize 1.5; \
+  cl_crosshairthickness 0.1; \
+  cl_crosshairgap -3; \
+  cl_crosshair_drawoutline 0; \
+  cl_crosshaircolor 4; \
+  cl_crosshaircolor_r 0; \
+  cl_crosshaircolor_g 255; \
+  cl_crosshaircolor_b 255; \
+  cl_crosshairusealpha 1; \
+  cl_crosshairalpha 255; \
+  cl_crosshair_t 0; \
+  cl_crosshairgap_useweaponvalue 0; \
+  cl_crosshair_sniper_width 0"
+```
+
+## Crosshair Styles
+
+### Style 4 (Static)
+Most pros use style 4 - completely static crosshair:
+```cfg
+cl_crosshairstyle 4
+cl_crosshairgap_useweaponvalue 0
+```
+
+### Style 2 (Dynamic)  
+Some players use dynamic crosshairs that expand when moving:
+```cfg
+cl_crosshairstyle 2
+```
+
+### Style 5 (Dynamic + Static)
+Combines static and dynamic elements:
+```cfg
+cl_crosshairstyle 5
+```
+
+## Common Crosshair Patterns
+
+### Small Gap, Thin Lines
+Popular among riflers (NiKo, m0NESY, mezii):
+```cfg
+cl_crosshairsize 1
+cl_crosshairthickness 1  
+cl_crosshairgap -4
+```
+
+### Medium Gap, No Thickness
+AWPers often prefer (Brollan, torzsi):
+```cfg  
+cl_crosshairsize 2
+cl_crosshairthickness 0
+cl_crosshairgap -3
+```
+
+### Dot Crosshair
+Minimalist option (donk, EliGE, molodoy):
+```cfg
+cl_crosshairstyle 4
+cl_crosshairdot 1
+cl_crosshairsize 0 or small
+cl_crosshair_drawoutline 1
+```
+
+### Large Crosshair  
+For visibility (broky, yuurih):
+```cfg
+cl_crosshairsize 3
+cl_crosshairthickness 1
+cl_crosshairgap -3
+```
+
+## Viewmodel Settings
+
+Viewmodels control weapon positioning on screen. Pro viewmodels are included with crosshair configs.
+
+### Common Viewmodel Types
+
+<Tabs>
+  <Tab title="Desktop (Classic)">
+    ```cfg
+    viewmodel_fov 68
+    viewmodel_offset_x 2.5
+    viewmodel_offset_y 0  
+    viewmodel_offset_z -1.5
+    viewmodel_presetpos 1
+    ```
+    Classic centered position, good visibility
+  </Tab>
+  
+  <Tab title="Couch (Low)">
+    ```cfg
+    viewmodel_fov 68
+    viewmodel_offset_x 1
+    viewmodel_offset_y 1
+    viewmodel_offset_z -1
+    viewmodel_presetpos 2
+    ```
+    Lower weapon position, more screen space
+  </Tab>
+  
+  <Tab title="Custom (Varied)">
+    ```cfg
+    viewmodel_fov 60-68  
+    viewmodel_offset_x -2 to 2.5
+    viewmodel_offset_y -2 to 2
+    viewmodel_offset_z -2 to 2
+    viewmodel_presetpos 3
+    ```
+    Pro players use custom positions
+  </Tab>
+</Tabs>
+
+## Hand Position (Left/Right)
+
+<CodeGroup>
+```cfg Right-Handed (Default)
+cl_righthand 1
+```
+
+```cfg Left-Handed  
+cl_righthand 0
+```
+</CodeGroup>
+
+Some pros switch hand position:
+- For different weapons (knife left, guns right)
+- Based on map side (CT right, T left)  
+- Personal preference for visibility
+
+## Crosshair Colors
+
+Pro players use various colors for visibility:
+
+| Color | RGB | Players |
+|-------|-----|----------|
+| Green | 0, 255, 0 | apEX, m0NESY, HooXi |
+| Cyan | 0, 255, 255 | ZywOo, w0nderful, sh1ro |
+| White | 255, 255, 255 | broky, mezii, karrigan |
+| Mint | 50, 250, 154 | ropz, flameZ, NAF |
+| Purple | 148, 0, 211 | torzsi, kyxsan |
+| Custom | Various | Many pros use specific RGB |
+
+## Follow-Recoil Integration
+
+<Warning>
+When using rapid fire or follow-recoil features, pro crosshairs are temporarily overridden by the follow-recoil indicator (green dot).
+
+Your crosshair automatically resets when you release mouse1.
+</Warning>
+
+The reset logic:
+```cfg
+// From rapid_followrecoil.cfg
+alias reset_crosshair_pro "reset_crosshair;init_proch"
+
+// Applies your selected pro crosshair after follow-recoil
+alias init_proch "proch"  // Runs your selected pro alias
+```
+
+## Creating Custom Crosshairs
+
+You can create your own crosshair aliases:
+
+<Steps>
+  <Step title="Generate Crosshair">
+    Use an in-game crosshair generator or adjust settings manually
+  </Step>
+  
+  <Step title="Copy Settings">
+    Type these commands in console to see your current crosshair:
+    ```
+    cl_crosshair_
+    ```
+    Then tab through all crosshair commands to see values
+  </Step>
+  
+  <Step title="Create Alias">
+    Add to `csafap/crosshair/pro/crosshairs_1.cfg`:
+    ```cfg
+    alias MyCustom "alias proch MyCustom; \
+      cl_crosshairstyle 4; \
+      cl_crosshairsize 1.5; \
+      // ... your settings
+    ```
+  </Step>
+  
+  <Step title="Add to Radio Wheel">
+    Edit `csafap/crosshair/pro/crosshair_labels.cfg` and `crosshair_cmd.cfg` to add your custom crosshair to the wheel
+  </Step>
+</Steps>
+
+## Crosshair Wheel Pages
+
+The crosshair wheel has multiple pages (scroll to access):
+
+- **Page 1**: Top teams (Vitality, FaZe, G2, MOUZ, Navi)
+- **Page 2**: More teams (Spirit, Liquid, ENCE, Falcons)  
+- **Page 3**: Additional players and custom crosshairs
+- **Bottom tiles**: Viewmodel toggles, movement configs
+
+## Viewmodel Toggle
+
+Quickly toggle viewmodel on/off:
+
+```cfg
+// From csafap/movement/viewmodel_on.cfg
+alias viewmodel_on "cl_viewmodel_shift_left_amt 0.5; \
+  cl_viewmodel_shift_right_amt 0.25; \
+  r_drawviewmodel 1"
+
+// From viewmodel_off.cfg  
+alias viewmodel_off "r_drawviewmodel 0"
+```
+
+Accessible via crosshair wheel for quick switches.
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Crosshair not changing when selected">
+    Check:
+    1. Config loaded properly (exec csafap/main)
+    2. No conflicting autoexec overriding crosshair
+    3. Console shows alias execution (no errors)
+  </Accordion>
+  
+  <Accordion title="Follow-recoil not resetting crosshair">
+    Make sure `reset_crosshair_pro` is defined:
+    ```cfg
+    alias reset_crosshair_pro "reset_crosshair;init_proch"
+    ```
+    This should be in `rapid_followrecoil.cfg`
+  </Accordion>
+  
+  <Accordion title="Radio wheel shows wrong names">
+    The labels are defined in `platform_english.txt`. Make sure:
+    1. You copied the csgo folder to the correct location
+    2. You restarted the game after editing the file
+    3. File encoding is correct (UTF-8)
+  </Accordion>
+</AccordionGroup>
+
+<Info>
+For the complete list of all 50+ pro crosshairs, check `csafap/crosshair/pro/crosshairs.cfg` in the source files.
+</Info>

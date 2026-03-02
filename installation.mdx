@@ -1,0 +1,168 @@
+---
+title: "Installation"
+description: "Install the CSAFAP Config Package in 4 simple steps"
+---
+
+# Installation Guide
+
+Get CSAFAP up and running in your CS2 game. Follow these four steps carefully to ensure proper installation.
+
+<Warning>
+Make sure you place the files in the correct directories. Installing in the wrong location is the most common installation issue.
+</Warning>
+
+<Steps>
+  <Step title="Download and Place the csafap Folder">
+    Download and place the whole folder named `csafap` in the config folder of your CS2 installation.
+    
+    **Path:**
+    ```
+    C:\Program Files (x86)\Steam\steamapps\common\Counter-Strike Global Offensive\game\csgo\cfg
+    ```
+    
+    <Note>
+    Note the path includes `game\csgo\cfg` - this is for CS2, not the old CS:GO directory.
+    </Note>
+    
+    **Common Mistakes to Avoid:**
+    
+    ✅ Correct: `.\steamapps\common\Counter-Strike Global Offensive\game\csgo\cfg\csafap`
+    
+    ❌ Wrong: `.\steamapps\common\Counter-Strike Global Offensive\csgo\cfg\csafap` (old CS:GO path)
+    
+    ❌ Wrong: `.\steamapps\common\Counter-Strike Global Offensive\game\csgo\cfg\csafap-config-package\csafap` (extra folder)
+    
+    <Info>
+    **Linux Users:** File paths are case-sensitive. Make sure to use lowercase when executing commands (e.g., `exec csafap/main`).
+    </Info>
+  </Step>
+
+  <Step title="Copy the csgo Folder">
+    Inside the `csafap` directory, copy the `csgo` folder and paste it at this path:
+    
+    ```
+    C:\Program Files (x86)\Steam\steamapps\common\Counter-Strike Global Offensive\game\
+    ```
+    
+    This places the custom language file `platform_english.txt` in the correct location, which provides the text labels for radio wheel options.
+    
+    **Final file location:**
+    ```
+    C:\Program Files (x86)\Steam\steamapps\common\Counter-Strike Global Offensive\game\csgo\resource\platform_english.txt
+    ```
+    
+    <Note>
+    Edits to `platform_english.txt` require a game restart to take effect.
+    </Note>
+  </Step>
+
+  <Step title="Configure main.cfg">
+    Open the main config file `csafap\main.cfg` with a text editor of your choice (e.g., Notepad++).
+    
+    **Required Configuration:**
+    
+    1. **Set Your Sensitivity** (Line 6)
+       
+       Find this line and enter YOUR sensitivity:
+       ```cfg
+       alias resetsens "sensitivity 1.0 ; m_yaw 0.022 ; sensitivity_y_scale 1"
+       ```
+       Replace `1.0` with your actual sensitivity value.
+    
+    2. **Customize Keybinds** (Lines 9-12)
+       
+       Change the default keybinds to your preference:
+       ```cfg
+       bind "M" +map_action           // MAP SELECTION + PRACTICE MODE
+       bind "J" +T_action             // T SMOKES
+       bind "H" +CT_action            // CT SMOKES  
+       bind "K" +crosshair_action     // PRO-CROSSHAIRS, FOLLOW-RECOIL, etc.
+       ```
+    
+    3. **Enable FaceIt Binds (Optional)**
+       
+       If you want to use auto line-ups on FaceIt, remove the `//` at the start of lines 14-15:
+       ```cfg
+       bind "J" +fAC_T_action         // T SMOKES for faceit
+       bind "H" +fAC_CT_action        // CT SMOKES for faceit
+       ```
+    
+    4. **Disable Unwanted Features (Optional)**
+       
+       To disable a feature, add `//` at the start of its line.
+    
+    <Info>
+    **AZERTY Keyboard Users:** Use scancode binds instead of letters. See the [scancode reference](https://github.com/libsdl-org/SDL/blob/main/include/SDL3/SDL_scancode.h#L218) or use a [scancode bind converter](https://totalcsgo.com/binds/converter).
+    </Info>
+  </Step>
+
+  <Step title="Add Launch Options">
+    Add the required launch options to CS2 in Steam.
+    
+    **How to add launch options:**
+    1. Open your Steam Library
+    2. Right-click Counter-Strike 2
+    3. Select Properties
+    4. Under General, find Launch Options
+    5. Add exactly this:
+    
+    ```
+    +exec csafap/main -testscript "../../csgo/cfg/csafap/addons/.vtest"
+    ```
+    
+    **What these launch options do:**
+    - `+exec csafap/main` - Executes the main config file on game launch
+    - `-testscript "../../csgo/cfg/csafap/addons/.vtest"` - Required for ticker-based features (jumpthrow, rapid fire, etc.)
+    
+    <Warning>
+    **Important:** Only exec the config on game launch using the launch option. Do NOT exec it again while on a server, as this can cause the config to be rejected.
+    </Warning>
+  </Step>
+</Steps>
+
+## Verify Installation
+
+After completing all steps, launch CS2 and verify the installation:
+
+1. Open the console (press `~`)
+2. Type `cl_radialradio` and check the autofill options
+3. Press one of your configured keybinds (default: H, J, K, or M)
+4. You should see the custom radio wheel with text labels
+
+<Note>
+**Radio tiles are blank?** Make sure you completed Step 2 correctly and restarted the game.
+</Note>
+
+## Troubleshooting
+
+### Config Not Found Error
+
+If you see this error:
+```
+exec csafap/main
+[InputService] exec: couldn't exec '{*}cfg/csafap/main.cfg', unable to read file
+```
+
+**Solutions:**
+- Check that the `csafap` folder is in the correct path (see Step 1)
+- Make sure you didn't place it in the old CS:GO directory
+- Ensure the folder structure is correct (no extra parent folders)
+
+### Sensitivity Changes to 1.0
+
+If your sensitivity resets to 1.0 and doesn't switch back:
+- Make sure you set your sensitivity in `csafap/main.cfg` (Step 3)
+- Auto sensitivity detection was patched by Valve and no longer works
+
+### Movement Keys or Mouse Don't Work
+
+If movement keys (WASD) or mouse buttons stop working:
+- This happens when the launch option command is too long
+- Check the console for errors after game launch
+- Make sure the `-testscript` launch option is properly formatted
+
+## Next Steps
+
+<Card title="Quick Start Guide" icon="rocket" href="/quickstart">
+  Learn how to use radio wheels and access features
+</Card>

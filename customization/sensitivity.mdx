@@ -1,0 +1,163 @@
+---
+title: Sensitivity Configuration
+description: Configure your sensitivity settings for proper auto line-up functionality in the CSAFAP Config Package
+---
+
+The CSAFAP Config Package requires you to set your sensitivity at the top of `csafap/MAIN.cfg` for auto line-ups to work correctly. This is crucial because the yaw/pitch calculations depend on your exact sensitivity values.
+
+## Setting Your Sensitivity
+
+<Warning>
+  You MUST set your sensitivity before using auto line-ups. The default values (1.0 sensitivity, 0.022 m_yaw) will not match your playing sensitivity.
+</Warning>
+
+### Location in MAIN.cfg
+
+At the top of `csafap/MAIN.cfg`, you'll find this line:
+
+```cfg
+// ❗❗❗ EDIT NEXT LINE ▼ to use YOUR own SENSITIVITY ❗❗❗
+alias resetsens "sensitivity 1.0 ; m_yaw 0.022 ; sensitivity_y_scale 1"
+```
+
+## Configuration Parameters
+
+The `resetsens` alias contains three important parameters:
+
+### sensitivity
+
+Your horizontal mouse sensitivity. This is the main sensitivity value you use for playing.
+
+**Example:**
+```cfg
+alias resetsens "sensitivity 2.5 ; m_yaw 0.022 ; sensitivity_y_scale 1"
+```
+
+### m_yaw
+
+The horizontal mouse sensitivity multiplier. Default is `0.022` for most players.
+
+**Default:**
+```cfg
+m_yaw 0.022
+```
+
+<Note>
+  Most players should keep `m_yaw` at the default value of `0.022` unless you have specifically customized this setting.
+</Note>
+
+### sensitivity_y_scale
+
+The vertical sensitivity scale relative to horizontal. Default is `1` (same as horizontal).
+
+**Example with custom Y-scale:**
+```cfg
+alias resetsens "sensitivity 2.5 ; m_yaw 0.022 ; sensitivity_y_scale 0.8"
+```
+
+## How to Set Your Sensitivity
+
+<Steps>
+  <Step title="Find your current sensitivity">
+    Open the CS2 console and type `sensitivity` to see your current value:
+    
+    ```
+    sensitivity
+    "sensitivity" = "1.5"
+    ```
+  </Step>
+  
+  <Step title="Check m_yaw (optional)">
+    Type `m_yaw` in console to verify your horizontal sensitivity multiplier:
+    
+    ```
+    m_yaw
+    "m_yaw" = "0.022"
+    ```
+    
+    Most players use the default `0.022` value.
+  </Step>
+  
+  <Step title="Check sensitivity_y_scale (optional)">
+    Type `sensitivity_y_scale` in console:
+    
+    ```
+    sensitivity_y_scale
+    "sensitivity_y_scale" = "1.0"
+    ```
+    
+    Default is `1.0` (vertical = horizontal).
+  </Step>
+  
+  <Step title="Edit MAIN.cfg">
+    Open `csafap/MAIN.cfg` and update line 6 with your values:
+    
+    ```cfg
+    alias resetsens "sensitivity 1.5 ; m_yaw 0.022 ; sensitivity_y_scale 1"
+    ```
+  </Step>
+  
+  <Step title="Save and reload">
+    Save the file and reload the config by typing `exec csafap/main` in console.
+  </Step>
+</Steps>
+
+## Why Sensitivity Matters
+
+Auto line-ups use the `yaw` and `pitch` commands to automatically aim at precise angles. These commands calculate movement based on your sensitivity:
+
+```cfg
+// Example from mirage.cfg - instant window smoke from spawn 1
+alias mir_smoke_1_1_x "yaw 7544.444 1 1"
+alias mir_smoke_1_1_y "pitch 2726.65663545 1 1"
+```
+
+The yaw/pitch values are calculated using the formula:
+
+$$
+X = \frac{a}{s \times m\_yaw}
+$$
+
+Where:
+- **X** = desired yaw/pitch value
+- **a** = angle to move (in degrees)
+- **s** = your sensitivity
+- **m_yaw** = horizontal sensitivity multiplier (0.022)
+
+<Info>
+  If your sensitivity is not set correctly, auto line-ups will aim at the wrong angles and your smokes will miss their targets.
+</Info>
+
+## Custom Y-Scale Support
+
+Since version 2.18, the config package supports custom `sensitivity_y_scale` values. If you use different vertical and horizontal sensitivities, make sure to set this value correctly.
+
+**Example for lower vertical sensitivity:**
+```cfg
+alias resetsens "sensitivity 2.0 ; m_yaw 0.022 ; sensitivity_y_scale 0.85"
+```
+
+## Troubleshooting
+
+### Auto line-ups are aiming wrong
+
+**Problem:** Smokes are missing their targets or aiming 180° in the wrong direction.
+
+**Solution:** Double-check your sensitivity settings in `MAIN.cfg`. Make sure they match your actual in-game sensitivity.
+
+### Sensitivity changes during auto line-ups
+
+**Problem:** Sensitivity stays at 1.0 after using auto line-ups.
+
+**Solution:** This means your `resetsens` alias is not configured with your actual sensitivity. Update line 6 in `MAIN.cfg`.
+
+### Vertical aim is off
+
+**Problem:** Horizontal aim is correct but vertical aim is wrong.
+
+**Solution:** Check your `sensitivity_y_scale` value and update it in the `resetsens` alias.
+
+## See Also
+
+- [Creating Line-ups](/customization/creating-lineups) - Learn how to create your own line-ups
+- [Keybinds](/customization/keybinds) - Customize your keybinds

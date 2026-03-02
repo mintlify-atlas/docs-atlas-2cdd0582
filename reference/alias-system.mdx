@@ -1,0 +1,146 @@
+---
+title: Alias System Architecture
+description: Understanding how aliases chain together in the CSAFAP Config Package to create dynamic keybinds and radio wheel functionality.
+---
+
+The CSAFAP Config Package uses a sophisticated alias chaining system to dynamically rebind keys and create multi-phase interactions with CS2's radio wheel system.
+
+## Core Concept
+
+Aliases in CS2 configs work by creating command shortcuts that can be redefined at runtime. The CSAFAP framework uses this to create "state machines" where pressing the same key performs different actions based on the current state.
+
+## Hotkey System Architecture
+
+The framework establishes four main hotkey systems, each with a two-phase binding cycle:
+
+### T-Side Line-up Wheel
+
+**Phase 1: Setup and Open** (csafap/logic.cfg:35-36)
+```cfg
+alias T_hotkey1 "alias +T_action +T_wheel_1; alias -T_action -T_wheel_1"
+alias +T_wheel_1 "reset_deadzone; exec csafap/maps/T_labels; setup_wheel; map_T_labels"
+alias -T_wheel_1 "slot8; zero_lr; +radialradio2; T_hotkey2"
+```
+
+**Phase 2: Execute and Reset** (csafap/logic.cfg:37-38)
+```cfg
+alias +T_wheel_2 "map_T_cmd;dontlookup; startsens"
+alias -T_wheel_2 "-radialradio2; T_hotkey1; sens_reset; map_T_labels;resetradio"
+```
+
+**How it works:**
+
+1. Initial bind: `T_hotkey1` sets `+T_action` and `-T_action` to wheel phase 1
+2. User presses key → `+T_wheel_1` executes (loads labels, sets up wheel)
+3. User releases key → `-T_wheel_1` executes (equips smoke, zeros view, opens radio, **rebinds to phase 2**)
+4. User hovers over option and presses key again → `+T_wheel_2` executes (loads commands, sets sensitivity)
+5. User releases key → `-T_wheel_2` executes (closes radio, **rebinds back to phase 1**, resets everything)
+
+### CT-Side Line-up Wheel
+
+Identical architecture to T-side (csafap/logic.cfg:30-33):
+
+```cfg
+alias CT_hotkey1 "alias +CT_action +CT_wheel_1; alias -CT_action -CT_wheel_1"
+alias +CT_wheel_1 "reset_deadzone; exec csafap/maps/CT_labels; map_CT_labels; setup_wheel"
+alias -CT_wheel_1 "slot8; zero_lr; +radialradio2; CT_hotkey2"
+
+alias +CT_wheel_2 "map_CT_cmd;dontlookup; startsens"
+alias -CT_wheel_2 "-radialradio2; CT_hotkey1; sens_reset;resetradio"
+```
+
+### Movement/Crosshair Wheel
+
+Follows the same two-phase pattern (csafap/logic.cfg:40-43):
+
+```cfg
+alias movement_hotkey1 "alias +crosshair_action +move_wheel_1; alias -crosshair_action -move_wheel_1"
+alias +move_wheel_1 "exec csafap/movement/movement_labels; null_labels; reset_deadzone; +radialradio2"
+alias -move_wheel_1 "movement_hotkey2; sens_reset; exec csafap/crosshair/pro/crosshairs"
+
+alias +move_wheel_2 "exec csafap/movement/movement_cmd; null_cmd"
+alias -move_wheel_2 "-radialradio2; movement_hotkey1;resetradio"
+```
+
+### Map Selection Wheel
+
+Simpler two-phase system (csafap/logic.cfg:24-27):
+
+```cfg
+alias +map_wheel_1 "reset_deadzone; exec csafap/maps/map_labels; wheel_curr_map;+radialradio2"
+alias -map_wheel_1 "map_hotkey2; sens_reset"
+
+alias +map_wheel_2 "exec csafap/maps/map_cmd"
+alias -map_wheel_2 "-radialradio2; map_hotkey1;resetradio"
+```
+
+## Initialization Sequence
+
+On config load, all wheels are initialized to their phase 1 state (csafap/logic.cfg:19-22):
+
+```cfg
+CT_hotkey1      // load key bind - CT-side line-ups
+T_hotkey1       // load key bind - T-side line-ups
+movement_hotkey1   // load key bind - movement configs
+map_hotkey1     // load key bind - map selection
+```
+
+## Advanced Pattern: Automatic Side Detection
+
+The framework includes an automatic side detection system that wraps both CT and T actions (csafap/logic.cfg:46-48):
+
+```cfg
+alias autoT "+T_action; alias -auto_action \"-T_action\""
+alias autoCT "+CT_action; alias -auto_action \"-CT_action\""
+alias +auto_action "exec csafap/maps/auto_selectside"
+```
+
+This allows a single keybind to automatically choose between CT and T wheels based on the player's current team.
+
+## Sensitivity Reset Pattern
+
+Auto line-ups require temporary sensitivity changes. The framework uses mouse bind aliasing to auto-reset (csafap/logic.cfg:62-66):
+
+```cfg
+alias sens_reset "bind mouse_x reset_mx; bind mouse_y reset_my"
+alias reset_mx "resetsens;dontlookup;original_mx"
+alias reset_my "resetsens;dontlookup;original_my"
+alias original_mx "bind mouse_x yaw"
+alias original_my "bind mouse_y pitch"
+```
+
+**How it works:**
+1. After auto line-up activates, `sens_reset` rebinds mouse axes to reset functions
+2. On first mouse movement, `reset_mx`/`reset_my` restore sensitivity and rebind to `original_mx`/`original_my`
+3. `original_mx`/`original_my` restore default mouse bindings
+4. Player can now aim normally again
+
+## Jumpthrow Reset Pattern
+
+W-Jumpthrow requires delayed `-forward` cleanup (csafap/logic.cfg:77-78):
+
+```cfg
+alias reset_JT_1 "-forward; bind mouse_x reset_JT_2"
+alias reset_JT_2 "-jump; bind mouse_x yaw"
+```
+
+This prevents the player from getting stuck moving forward after a W-Jumpthrow.
+
+## Key Principles
+
+1. **State Toggle**: Each hotkey system toggles between exactly two states
+2. **Phase Separation**: Labels load in phase 1, commands execute in phase 2
+3. **Self-Rebinding**: The `-` (release) action of one phase rebinds the key to the next phase
+4. **Circular Flow**: Phase 2 always returns to phase 1, creating a loop
+5. **Context Preservation**: Map-specific aliases (`map_CT_labels`, `map_T_labels`) persist across phase transitions
+
+## Debugging Tips
+
+- Use `alias <name>` in console to check current definition
+- Check which phase you're in by examining `+CT_action`, `+T_action`, etc.
+- If stuck, manually execute the `_hotkey1` alias to reset to phase 1
+- Radio wheel issues often come from interrupted phase transitions (pressing ESC mid-cycle)
+
+## Performance Considerations
+
+The framework loads aliases on-demand by using `exec` statements in phase transitions. This keeps memory usage low and prevents the alias limit crashes that plagued earlier versions (see csafap/logic.cfg:255).

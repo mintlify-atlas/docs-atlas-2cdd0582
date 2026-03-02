@@ -1,0 +1,443 @@
+---
+title: 'Rapid Fire & Follow Recoil'
+description: 'Rapid fire pistols and enhanced follow-recoil spray pattern indicator'
+---
+
+Rapid fire and follow-recoil features provide enhanced shooting mechanics using the ticker system. Rapid fire shoots pistols as fast as possible, while follow-recoil shows a visual indicator of your spray pattern.
+
+## Feature Overview
+
+<CardGroup cols={2}>
+  <Card title="Rapid Fire" icon="gauge-high">
+    Shoots pistols at maximum fire rate while holding mouse1
+  </Card>
+  <Card title="Follow Recoil" icon="crosshairs-simple">
+    Green dot indicator showing spray pattern position
+  </Card>
+</CardGroup>
+
+## Requirements
+
+<Warning>
+These features require:
+
+1. **Ticker launch option**: `-testscript "../../csgo/cfg/csafap/addons/.vtest"`
+2. **Special binds in csafap/main.cfg**:
+   ```cfg
+   bind "1" "ef_slot1"  // Primary weapon
+   bind "2" "ef_slot2"  // Secondary weapon (pistol)
+   bind "3" "ef_slot3"  // Knife
+   // ... etc for all weapon slots
+   ```
+3. **Mouse binds**: `bind mouse1 +M1` and `bind mouse2 +M2`
+4. **Frame rate**: Default config works at &gt;150 FPS. For &lt;150 FPS, rename `rapid_followrecoil_lessthan150FPS.cfg` to `rapid_followrecoil.cfg`
+</Warning>
+
+## How It Works
+
+### Rapid Fire Logic
+
+Rapid fire uses a ticker loop to repeatedly press and release mouse1:
+
+```cfg
+// From rapid_followrecoil.cfg
+alias rf_01 "+attack; alias run_fire rf_02"
+alias rf_02 "-attack; alias run_fire rf_03"  
+alias rf_03 "alias run_fire rf_04"
+// ... 18-step loop for timing
+alias rf_18 "alias run_fire rf_01"
+
+// Tick master calls run_fire every frame
+alias tick_master "run_fire"
+```
+
+This creates frame-perfect pistol spamming.
+
+### Follow-Recoil Logic
+
+Follow-recoil uses `cl_crosshair_recoil` to show spray pattern:
+
+```cfg  
+// Follow-recoil indicator crosshair
+alias crosshair_follow "cl_crosshairsize 0.8; \
+  cl_crosshairthickness 1; \
+  cl_crosshairgap -5; \
+  cl_crosshaircolor 1; \
+  cl_crosshair_drawoutline false; \
+  cl_crosshairalpha 255; \
+  cl_crosshairstyle 4; \
+  cl_crosshairusealpha true"
+
+// Toggle logic (with delay)
+alias rc_loop_on  "cl_crosshair_recoil 1; crosshair_follow; alias counter_step rc_loop_off"
+alias rc_loop_off "cl_crosshair_recoil 0; reset_crosshair_pro; alias counter_step rc_loop_on"
+```
+
+The green dot flickers rapidly to indicate spray position.
+
+## Enabling Features
+
+<Steps>
+  <Step title="Set ef_slot Binds">
+    In `csafap/main.cfg`, configure weapon slot binds:
+    ```cfg
+    bind "1" "ef_slot1"
+    bind "2" "ef_slot2"  
+    bind "3" "ef_slot3"
+    bind "4" "ef_slot4"
+    bind "5" "ef_slot5"
+    ```
+  </Step>
+  
+  <Step title="Choose Mode">
+    Open crosshair wheel (default: **K**) and select:
+    - **Rapid Fire Only**: Pistols shoot fast, no recoil indicator
+    - **Follow Recoil + Rapid Fire**: Both features enabled
+  </Step>
+  
+  <Step title="Or Use Toggle Bind">
+    Set a toggle key in `csafap/main.cfg`:
+    ```cfg
+    bind "RALT" "toggle_rapid"  // Right-Alt to toggle on/off
+    ```
+  </Step>
+  
+  <Step title="Equip Weapon">
+    - Rapid fire: Press **2** (ef_slot2) to equip pistol
+    - Follow recoil: Works on primary weapons (ef_slot1)
+  </Step>
+</Steps>
+
+<Tip>
+You'll hear an activation sound (blip2) when enabling and deactivation sound (blip1) when disabling.
+</Tip>
+
+## Feature Modes
+
+### Setup 1: Rapid Fire Only
+```cfg
+// From rapid_followrecoil.cfg  
+alias rapid_setup_1 "alias current_setup setup_1; echo [SETUP_1_SELECTED]"
+
+alias setup_1 "play buttons/blip2; \
+  load_slots_enabled_1; \
+  last_slot_used; \
+  alias toggle_rapid rapid_mode_off; \
+  echo [ON: RAPID FIRE]"
+
+// Slot logic for Setup 1
+alias s1_slot1 "slot1; set_slot1; logic_off"      // Primary: normal
+alias s1_slot2 "slot2; set_slot2; logic_rapid_only" // Pistol: rapid fire
+```
+
+This mode:
+- Primary weapons: Normal behavior
+- Pistols: Rapid fire enabled
+- No follow-recoil indicator
+
+### Setup 2: Rapid Fire + Follow Recoil
+```cfg
+alias rapid_setup_2 "alias current_setup setup_2; echo [SETUP_2_SELECTED]"
+
+alias setup_2 "play buttons/blip2; \
+  load_slots_enabled_2; \
+  last_slot_used; \
+  alias toggle_rapid rapid_mode_off; \
+  echo [ON: FOLLOW-RECOIL + RAPID FIRE]"
+
+// Slot logic for Setup 2  
+alias s2_slot1 "slot1; set_slot1; logic_rifle"  // Primary: follow-recoil
+alias s2_slot2 "slot2; set_slot2; logic_pistol" // Pistol: rapid + recoil
+```
+
+This mode:
+- Primary weapons: Follow-recoil indicator (green dot)
+- Pistols: Rapid fire + follow-recoil
+- Both features active
+
+## Weapon Slot System
+
+The config uses "ef_slot" aliases to control behavior per weapon:
+
+```cfg
+// Weapon slot definitions
+alias ef_slot1  // Primary weapon (rifle/AWP)
+alias ef_slot2  // Secondary weapon (pistol)  
+alias ef_slot3  // Knife
+alias ef_slot4  // Grenades (slot 6-10)
+alias ef_slot5  // Bomb/utility
+
+// Quick switch logic
+alias ef_invnext    // Mouse wheel down
+alias ef_invprev    // Mouse wheel up  
+alias ef_lastinv    // Q (quick switch)
+```
+
+Each weapon slot can have different logic:
+- **logic_off**: Normal behavior
+- **logic_rapid_only**: Rapid fire, no recoil indicator
+- **logic_pistol**: Rapid fire + recoil  
+- **logic_rifle**: Recoil indicator only
+
+## Hand Position (Left/Right)
+
+Choose knife hand position for rapid fire/follow-recoil:
+
+<Tabs>
+  <Tab title="Right-Handed">
+    ```cfg
+    // Use: csafap/crosshair/rapid_followrecoil_righthanded.cfg
+    exec csafap/crosshair/rapid_followrecoil_righthanded
+    ```
+    Knife on right side
+  </Tab>
+  
+  <Tab title="Left-Handed">
+    ```cfg  
+    // Use: csafap/crosshair/rapid_followrecoil_lefthanded.cfg
+    exec csafap/crosshair/rapid_followrecoil_lefthanded
+    ```
+    Knife on left side
+  </Tab>
+</Tabs>
+
+The hand position only affects the knife when using rapid fire or follow-recoil.
+
+## FPS Requirements
+
+<AccordionGroup>
+  <Accordion title="High FPS (>150 FPS)">
+    Use default config:
+    ```cfg
+    exec csafap/crosshair/rapid_followrecoil
+    ```
+    18-step rapid fire loop, optimized for high frame rates
+  </Accordion>
+  
+  <Accordion title="Low FPS (<150 FPS)">
+    Rename and use:
+    ```cfg
+    // Rename: rapid_followrecoil_lessthan150FPS.cfg → rapid_followrecoil.cfg
+    exec csafap/crosshair/rapid_followrecoil
+    ```
+    Adjusted timing for lower frame rates
+  </Accordion>
+</AccordionGroup>
+
+## Mouse Integration
+
+### M1 (Left Click)
+```cfg
+alias +M1 "snd_toolvolume 0; \
+  alias M1! tick_master; \
+  init_loops; \
+  alias M1> -attack; \
+  +M1_logic"
+  
+alias -M1 "alias M1! ""; \
+  -M1_logic; \
+  alias M1>; \
+  -attack; \
+  spec_next; \
+  snd_toolvolume 0.05"
+
+bind mouse1 +M1
+```
+
+The M1 bind:
+- Initializes ticker loops
+- Sets up attack release (M1>)
+- Applies weapon-specific logic (+M1_logic)
+- Cleans up on release
+
+### M2 (Right Click)  
+```cfg
+alias +M2 alias M2! M2+
+alias -M2 alias M2! M2-  
+alias M2> ""
+
+alias M2+ "alias M2!; alias M2> -attack2; +attack2"
+alias M2- "alias M2!; alias M2>; attack2 -9999 f u; spec_prev"
+
+bind mouse2 +M2
+```
+
+M2 is simpler, mainly used for:
+- Right-click attacks
+- Jumpthrow integration (M2> release)
+- Scoreboard mouse support
+
+## Crosshair Reset
+
+When you release mouse1, your crosshair resets:
+
+```cfg
+// Release logic
+alias release_full "cl_crosshair_recoil 0; reset_crosshair_pro"
+
+// Reset to your selected pro crosshair
+alias reset_crosshair_pro "reset_crosshair;init_proch"
+alias init_proch "proch"  // Runs your selected pro crosshair alias
+```
+
+This ensures:
+1. Follow-recoil turns off
+2. Your normal crosshair returns
+3. Pro crosshair settings are maintained
+
+## Jumpthrow Integration
+
+Rapid fire/follow-recoil work with jumpthrow binds:
+
+```cfg
+// From rapid_followrecoil.cfg
+alias +JumpThrow alias JT! JT+1  
+alias -JumpThrow alias JT! JT-1
+
+alias JT+1 "M1>; alias JT! JT+2"  // Release M1 (mouse1)
+alias JT+2 "M2>; alias JT! JT+3"  // Release M2 (mouse2)
+alias JT+3 "alias JT!; +jump"
+alias JT-1 "jump -9999 f u; alias JT!"
+```
+
+M1> and M2> allow jumpthrow to release grenades even with rapid fire active.
+
+## Scoreboard Mouse Fix
+
+<Warning>
+When using custom M2 binds, scoreboard right-click needs configuration:
+
+```cfg
+cl_scoreboard_mouse_enable_binding +M2
+```
+
+This is automatically set in `rapid_followrecoil.cfg`.
+</Warning>
+
+## Toggling On/Off
+
+### Via Toggle Key
+```cfg  
+// Set toggle bind in csafap/main.cfg
+bind "RALT" "toggle_rapid"
+
+// Toggle behavior
+alias toggle_rapid current_setup_activator  // First press: Enable
+alias toggle_rapid rapid_mode_off           // Second press: Disable
+```
+
+### Via Radio Wheel
+1. Open crosshair wheel (K)
+2. Select "RAPID FIRE" or "RAPID + RECOIL"
+3. Select "OFF" to disable
+
+### Status Indicators
+- **Enable**: Plays blip2 sound, echo "[ON: ...]"
+- **Disable**: Plays blip1 sound, echo "[OFF]"
+
+## Customization
+
+### Rapid Fire Speed
+
+Adjust the loop steps for faster/slower fire rate:
+
+```cfg
+// Current: 18-step loop (from rf_01 to rf_18)
+// Fewer steps = faster firing
+// More steps = slower firing
+
+// Example: 12-step loop for faster firing
+alias rf_01 "+attack; alias run_fire rf_02"
+alias rf_02 "-attack; alias run_fire rf_03"
+// ... reduce to rf_12
+alias rf_12 "alias run_fire rf_01"
+```
+
+### Follow-Recoil Crosshair
+
+Customize the green dot indicator:
+
+```cfg
+alias crosshair_follow "cl_crosshairsize 0.8; \  
+  cl_crosshairthickness 1; \
+  cl_crosshairgap -5; \
+  cl_crosshaircolor 1; \     // 1 = green
+  cl_crosshair_drawoutline false; \
+  cl_crosshairalpha 255; \
+  cl_crosshairstyle 4"
+```
+
+Change:
+- `cl_crosshaircolor` for different colors
+- `cl_crosshairsize` for dot size
+- `cl_crosshairgap` for positioning
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Rapid fire not working">
+    Check:
+    1. Ticker launch option is set
+    2. You're using `bind 2 ef_slot2` (not `bind 2 slot2`)
+    3. Frame rate is sufficient (>150 FPS or use low FPS config)
+    4. Feature is enabled (toggle or radio wheel)
+    5. You equipped the pistol with ef_slot2 (not just pressing 2)
+  </Accordion>
+  
+  <Accordion title="Follow-recoil not showing">
+    Verify:
+    1. Using Setup 2 (Rapid + Follow-Recoil)
+    2. Equipped primary weapon (ef_slot1)
+    3. Holding mouse1 while spraying
+    4. No crosshair style conflicts (cl_crosshairstyle should be 4)
+  </Accordion>
+  
+  <Accordion title="Grenades auto-fire when switching">
+    You need to use ef_slot binds:
+    ```cfg
+    bind "4" "ef_slot4"  // Not "bind 4 slot6"
+    ```
+    The ef_slot system prevents auto-fire on grenades.
+  </Accordion>
+  
+  <Accordion title="Crosshair doesn't reset after spraying">
+    Make sure:
+    ```cfg
+    alias reset_crosshair_pro "reset_crosshair;init_proch"
+    ```
+    is defined and you have a pro crosshair selected (init_proch).
+  </Accordion>
+  
+  <Accordion title="Console spam: Unknown command M1!">
+    Ticker isn't loaded. Check:
+    - Launch option: `-testscript "../../csgo/cfg/csafap/addons/.vtest"`
+    - Config loaded without errors
+    - No commands too long in csafap/main.cfg
+  </Accordion>
+  
+  <Accordion title="Right-click not working on scoreboard">
+    Set:
+    ```cfg
+    cl_scoreboard_mouse_enable_binding +M2
+    ```
+    This is in the config by default.
+  </Accordion>
+</AccordionGroup>
+
+## Frame Rate Optimization
+
+For best results:
+
+```cfg
+fps_max 600  // Unlimited FPS for rapid fire
+
+// If experiencing issues:
+fps_max 300  // Cap at 300
+// OR use the <150 FPS config variant
+```
+
+Rapid fire is frame-rate dependent - higher FPS = more consistent timing.
+
+<Info>
+The ticker system calls aliases every frame, so frame rate directly affects rapid fire speed and follow-recoil responsiveness.
+</Info>

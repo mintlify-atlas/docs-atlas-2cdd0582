@@ -1,0 +1,182 @@
+---
+title: "Video Tutorials"
+description: "Watch step-by-step video guides for installing and using the CSAFAP Config Package"
+---
+
+# Video Tutorials
+
+Learn how to install and use the CSAFAP Config Package through comprehensive video tutorials.
+
+## Official Video Guides
+
+### Version 2.0 Tutorial (Latest)
+
+The most recent comprehensive guide covering all features in version 2.0 and above.
+
+<iframe
+  width="100%"
+  height="400"
+  src="https://www.youtube.com/embed/bqqCAiT1ip0"
+  title="CSAFAP Config Package v2.0 Tutorial"
+  frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowfullscreen
+></iframe>
+
+**What's covered:**
+- Installation walkthrough
+- Using radio wheels
+- Practice Mode features
+- Auto line-ups
+- Pro crosshairs and viewmodels
+- Advanced movement options
+
+### Version 1.0 Tutorial (Foundation)
+
+The original tutorial covering the base features and concepts.
+
+<iframe
+  width="100%"
+  height="400"
+  src="https://www.youtube.com/embed/G9hAaifu2H0"
+  title="CSAFAP Config Package v1.0 Tutorial"
+  frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowfullscreen
+></iframe>
+
+**What's covered:**
+- Basic installation steps
+- Core features introduction
+- Using automatic line-ups
+- Movement input options (Snap-Tap/Nulls)
+- How to find and create your own line-ups
+
+<Note>
+Some features shown in the v1.0 tutorial may have changed or been patched. Always refer to the v2.0 tutorial for current functionality.
+</Note>
+
+## Topic-Specific Guides
+
+### Creating Custom Line-ups
+
+Want to add your own line-ups to the config? Watch this detailed explanation:
+
+**[Finding Your Own Line-up - Video Timestamp](https://youtu.be/G9hAaifu2H0?si=3U4mB8vV8oWa-x8g&t=669)**
+
+<Steps>
+  <Step title="Find the Desired Angle">
+    Use the `getpos` command in-game to capture your position and angle.
+  </Step>
+  <Step title="Calculate Yaw and Pitch Values">
+    Calculate the required values for yaw and pitch commands, then create an alias in `csafap/logic.cfg`.
+    
+    **Formula:**
+    ```
+    X = a / (s × m_yaw)
+    ```
+    Where:
+    - X = desired yaw/pitch value
+    - a = angle you need to move (in degrees)
+    - s = sensitivity (using 1.0)
+    - m_yaw = 0.022
+    
+    <Note>
+    Since v2.15, vertical viewangle is zeroed at -89° instead of 0°. Add `+4045.45454545` to your calculated pitch value.
+    </Note>
+  </Step>
+  <Step title="Create a Label">
+    Create a label within the language file `platform_english.txt`.
+  </Step>
+  <Step title="Add to Radio Tile">
+    Call this label on an empty radio tile within `csafap/maps/[mapname]_labels.cfg`.
+  </Step>
+  <Step title="Call the Alias">
+    Call the alias you created in Step 2 within `csafap/maps/[mapname]_cmd.cfg` using the same radio tile.
+  </Step>
+</Steps>
+
+### Movement Options Explained
+
+Understand the different movement input options (Snap-Tap, Nulls, De-subtick):
+
+**[Movement Input Options - Video Timestamp](https://youtu.be/G9hAaifu2H0?si=ZAl2vxdoX8eZ_Ktn&t=63)**
+
+See visual demonstrations of:
+- **NullWASD** - Counter-strafe assistance
+- **De-subtick** - CS:GO-like movement feel
+- Default movement comparison
+
+<Warning>
+Auto counter-strafe configs shown in older videos have been patched and no longer work.
+</Warning>
+
+### Setting Up Jumpthrow Macro
+
+Learn how to set up a macro for jumpthrow (alternative to config binds):
+
+**[Jumpthrow Macro Setup - YouTube](https://youtu.be/yqtJZFQSF_U)**
+
+<Info>
+Using a macro for jumpthrow can help avoid issues with W-bind of NullWASD. The CSAFAP config provides built-in jumpthrow binds, but macros are an alternative option.
+</Info>
+
+## Map-Specific Line-up Playlists
+
+Watch demonstrations of instant smokes and practice spawns for each map:
+
+**[YouTube Playlists - Sorted by Maps](https://www.youtube.com/@FNScence/playlists)**
+
+Available playlists include:
+- **Ancient** - [CT-side](https://youtu.be/fd6gRZDOCps?si=qLWsm4GrhhVyXXpC&t=7) | [T-side](https://youtu.be/klyGW-IUca4?si=dRQ8qaAShzDSY0GG&t=3)
+- **Dust2** - [T-side](https://youtu.be/XGQDTpFwkKM?si=oTVD5aypaWxZqgrz&t=55)
+- **Nuke** - [CT-side](https://youtu.be/v204dZrtFbo?si=lLB9Z4ohute6-8rq&t=84) | [T-side](https://youtu.be/tImJDxKe70o?si=mAKxnBdTGIZ9TUrH&t=17)
+- **Anubis** - [CT-side](https://youtu.be/fullFlkzB0U?si=MYDkPpzPqFDqqEbj&t=55) | [T-side](https://youtu.be/wURJvMSSbF0?si=Bd7TZ9BmWbJOAVsD&t=164)
+- **Inferno** - [CT-side](https://youtu.be/5MzQnaHtjl4?si=dymht4z6wghpO1EE&t=8)
+- **Mirage** - [T-side](https://youtu.be/klBqOVbdckQ?si=GendkMN1315tFBTf&t=53)
+- **Train** - [T-side](https://youtu.be/r_NkXOjYiIM?si=7rZNnNfyRmbTTloF&t=8)
+
+<Note>
+Video descriptions include `setpos` commands for practicing each spawn position.
+</Note>
+
+## Additional Resources
+
+### Community Support
+
+Join the CS AFAP Discord server for:
+- Additional help and troubleshooting
+- Community discussions
+- Feature requests and feedback
+- Updates and announcements
+
+**[Join CS AFAP Discord Server](https://discord.gg/cs-as-fast-as-possible-992407294866370681)**
+
+### Custom Radio Commands Tutorial
+
+Find the basic configs for creating your own custom radio commands in the Discord server:
+- Navigate to the `#auto-lineup-config` channel
+- Check the pinned messages for template configs
+
+## Tips for Learning
+
+<CardGroup cols={2}>
+  <Card title="Start Simple" icon="seedling">
+    Begin with basic features like radio wheels and one auto line-up before exploring advanced features.
+  </Card>
+  <Card title="Practice Offline" icon="person">
+    Use Practice Mode offline to familiarize yourself with features before using them in matches.
+  </Card>
+  <Card title="Watch at Slower Speed" icon="gauge-simple">
+    Use YouTube's playback speed controls (0.75x, 0.5x) to follow installation steps more carefully.
+  </Card>
+  <Card title="Take Notes" icon="pen">
+    Keep track of your custom settings and keybinds as you configure the package.
+  </Card>
+</CardGroup>
+
+## What's Next?
+
+<Card title="Back to Quick Start" icon="rocket" href="/quickstart">
+  Return to the Quick Start guide to practice what you've learned
+</Card>

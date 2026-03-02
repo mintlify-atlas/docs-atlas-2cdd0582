@@ -1,0 +1,507 @@
+---
+title: "Map Configurations"
+description: "Complete reference for map-specific smoke lineups, practice mode, and auto-lineup system"
+---
+
+## Overview
+
+The map configuration system provides instant smoke lineups for all competitive maps, practice mode tools, and an intuitive radio wheel interface for quick access to grenades.
+
+## File Location
+
+```
+csafap/maps/
+```
+
+## Supported Maps
+
+The config package includes full smoke lineup support for:
+
+- Ancient
+- Anubis  
+- Dust2
+- Inferno
+- Mirage (with spawn-specific lineups)
+- Nuke
+- Overpass
+- Thera
+- Train
+- Vertigo
+
+## Map Structure
+
+Each map follows a consistent directory structure:
+
+```
+csafap/maps/[mapname]/
+├── [mapname].cfg              # Main map configuration
+├── [mapname]_T_cmd.cfg        # T-side smoke commands
+├── [mapname]_T_labels.cfg     # T-side smoke labels
+├── [mapname]_CT_cmd.cfg       # CT-side smoke commands
+├── [mapname]_CT_labels.cfg    # CT-side smoke labels
+└── wheel_curr_map.cfg         # Current map wheel config
+```
+
+## Dust2 Configuration Example
+
+<ParamField path="csafap/maps/dust2/dust2.cfg" type="file">
+  Complete Dust2 smoke lineup configuration.
+  
+  **Main Configuration:**
+  ```cfg
+  alias map_CT_labels "exec csafap/maps/dust2/dust2_CT_labels"
+  alias map_CT_cmd "m_yaw 0.022; exec csafap/maps/dust2/dust2_CT_cmd"
+  
+  alias map_T_labels "exec csafap/maps/dust2/dust2_T_labels"
+  alias map_T_cmd "m_yaw 0.022; exec csafap/maps/dust2/dust2_T_cmd"
+  
+  alias wheel_curr_map "exec csafap/maps/dust2/wheel_curr_map"
+  ```
+</ParamField>
+
+## Smoke Lineup System
+
+### T-Side Smokes (Dust2)
+
+<ParamField path="Instant Mid Doors" type="smoke lineup">
+  Multiple spawn-based lineups for mid doors smoke.
+  
+  **Spawn Positions:**
+  ```cfg
+  alias d2_spawn_T_1 "setpos_exact -1181 -754 120.181259"
+  alias d2_spawn_T_2 "setpos_exact -1141 -808 116.685989"
+  alias d2_spawn_T_3 "setpos_exact -1076 -843 116.789474"
+  alias d2_spawn_T_12 "setpos_exact -493 -808 108.563377"
+  alias d2_spawn_T_13 "setpos_exact -428 -843 95.296295"
+  alias d2_spawn_T_14 "setpos_exact -367 -808 83.744965"
+  alias d2_spawn_T_15 "setpos_exact -332 -754 78.877106"
+  ```
+  
+  **Lineup Angles (Spawn 1):**
+  ```cfg
+  alias d2_smoke_1_x "yaw -3265.04968 1 1"
+  alias d2_smoke_1_y "pitch 2617.45905 1 1"
+  ```
+  
+  **Lineup Angles (Spawn 2):**
+  ```cfg
+  alias d2_smoke_2_x "yaw -3379.20309 1 1"
+  alias d2_smoke_2_y "pitch 2147.7545 1 1"
+  ```
+</ParamField>
+
+<ParamField path="Instant B Doors" type="smoke lineup">
+  Quick B doors smoke from T spawn.
+  
+  ```cfg
+  alias d2_smoke_B_x "yaw -4283 1 1"
+  alias d2_smoke_B_y "pitch 2970.95586 1 1"
+  ```
+</ParamField>
+
+### CT-Side Smokes (Dust2)
+
+<ParamField path="Fast Long House" type="smoke lineup">
+  Quick long house smoke from CT spawn.
+  
+  **Version 1:**
+  ```cfg
+  // From: setpos 769.708923 2379.968262 -35.420898
+  // Angles: setang -52.806522 -91.647049 0
+  alias d2_smoke_CT_1_x "yaw 4165.77495 1 1"
+  alias d2_smoke_CT_1_y "pitch 1645.1581 1 1"
+  ```
+  
+  **Version 2:**
+  ```cfg
+  // From: setpos 732.148621 2344.968750 -47.171936
+  // Angles: setang -53.745754 -90.521515 0
+  alias d2_smoke_CT_2_x "yaw 4114.61432 1 1"
+  alias d2_smoke_CT_2_y "pitch 1602.46573 1 1"
+  ```
+</ParamField>
+
+<ParamField path="Upper Tunnels" type="smoke lineup">
+  CT upper tunnels smoke.
+  
+  ```cfg
+  // Angles: setang -70.486359 -141.103409 0
+  alias d2_smoke_CT_3_x "yaw 6413.79132 1 1"
+  alias d2_smoke_CT_3_y "pitch 841.52914 1 1"
+  ```
+</ParamField>
+
+## Radio Wheel Integration
+
+### T-Side Wheel Commands
+
+<ParamField path="dust2_T_cmd.cfg" type="file">
+  T-side smoke commands activated via radio wheel.
+  
+  ```cfg
+  // Secondary wheel (main smokes)
+  cl_radial_radio_tab_1_text_1 cmd";fAC;d2_smoke_12_x;d2_smoke_12_y;d2_spawn_T_12;
+  cl_radial_radio_tab_1_text_2 cmd";fAC;d2_smoke_13_x;d2_smoke_13_y;d2_spawn_T_13;
+  cl_radial_radio_tab_1_text_3 cmd";fAC;d2_smoke_14_x;d2_smoke_14_y;d2_spawn_T_14;
+  cl_radial_radio_tab_1_text_4 cmd";fAC;d2_smoke_15_x;d2_smoke_15_y;d2_spawn_T_15;
+  cl_radial_radio_tab_1_text_5 cmd";fAC;d2_smoke_B_x;d2_smoke_B_y;
+  cl_radial_radio_tab_1_text_6 cmd";fAC;d2_smoke_1_x;d2_smoke_1_y;d2_spawn_T_1;
+  cl_radial_radio_tab_1_text_7 cmd";fAC;d2_smoke_2_x;d2_smoke_2_y;d2_spawn_T_2;
+  cl_radial_radio_tab_1_text_8 cmd";fAC;d2_smoke_3_x;d2_smoke_3_y;d2_spawn_T_3;
+  ```
+</ParamField>
+
+### CT-Side Wheel Commands
+
+<ParamField path="dust2_CT_cmd.cfg" type="file">
+  CT-side smoke commands activated via radio wheel.
+  
+  ```cfg
+  // Secondary wheel
+  cl_radial_radio_tab_1_text_1 cmd";fAC;d2_smoke_CT_1_x;d2_smoke_CT_1_y;
+  cl_radial_radio_tab_1_text_2 cmd";fAC;d2_smoke_CT_2_x;d2_smoke_CT_2_y;
+  cl_radial_radio_tab_1_text_5 cmd";fAC;d2_smoke_CT_3_x;d2_smoke_CT_3_y;
+  ```
+</ParamField>
+
+## Map Selection System
+
+<ParamField path="csafap/maps/map_cmd.cfg" type="file">
+  Radio wheel-based map selection interface.
+  
+  **Primary Wheel:**
+  ```cfg
+  cl_radial_radio_tab_0_text_1 cmd";exec csafap/maps/vertigo/vertigo;
+  cl_radial_radio_tab_0_text_2 cmd";exec csafap/maps/thera/thera;
+  cl_radial_radio_tab_0_text_8 cmd";exec csafap/maps/train/train;
+  ```
+  
+  **Secondary Wheel:**
+  ```cfg
+  cl_radial_radio_tab_1_text_1 cmd";exec csafap/maps/anubis/anubis;
+  cl_radial_radio_tab_1_text_2 cmd";exec csafap/maps/overpass/overpass;
+  cl_radial_radio_tab_1_text_3 cmd";exec csafap/maps/inferno/inferno;
+  cl_radial_radio_tab_1_text_4 cmd";exec csafap/maps/mirage/mirage;
+  cl_radial_radio_tab_1_text_5 cmd";load_practice_mode;
+  cl_radial_radio_tab_1_text_6 cmd";exec csafap/maps/dust2/dust2;
+  cl_radial_radio_tab_1_text_7 cmd";exec csafap/maps/nuke/nuke;
+  cl_radial_radio_tab_1_text_8 cmd";exec csafap/maps/ancient/ancient;
+  ```
+</ParamField>
+
+## Practice Mode
+
+<ParamField path="load_practice_mode" type="alias">
+  Activates practice mode with map selection.
+  
+  ```cfg
+  alias load_practice_mode "exec csafap/practice_mode/prac; 
+    alias wheel_curr_map ''; choose_map"
+  ```
+</ParamField>
+
+<ParamField path="choose_map" type="alias">
+  Manual map selection interface.
+  
+  ```cfg
+  alias choose_map "reset_deadzone; pracmap_hotkey; 
+    exec csafap/practice_mode/selectmap_labels; +radialradio2"
+  ```
+</ParamField>
+
+<ParamField path="choose_side" type="alias">
+  Side selection for practice mode.
+  
+  ```cfg
+  alias choose_side "reset_deadzone; 
+    exec csafap/practice_mode/selectside"
+  ```
+</ParamField>
+
+### Side Configuration
+
+<ParamField path="prac_ct" type="alias">
+  Practice mode CT-side configuration.
+  
+  ```cfg
+  alias prac_ct "alias guide_load guide_load_CT; 
+    alias guide_switch_side guide_load_T; 
+    alias guide_on_cmd guide_CT_cmd; 
+    alias guide_side_labels guide_CT_labels; 
+    alias guide_switch_labels guide_T_labels"
+  ```
+</ParamField>
+
+<ParamField path="prac_t" type="alias">
+  Practice mode T-side configuration.
+  
+  ```cfg
+  alias prac_t "alias guide_load guide_load_T; 
+    alias guide_switch_side guide_load_CT; 
+    alias guide_on_cmd guide_T_cmd; 
+    alias guide_side_labels guide_T_labels; 
+    alias guide_switch_labels guide_CT_labels"
+  ```
+</ParamField>
+
+## Wheel Hotkey System
+
+### T-Side Wheel
+
+```cfg
+alias +T_wheel_1 "reset_deadzone; exec csafap/maps/T_labels; 
+  setup_wheel; map_T_labels"
+alias -T_wheel_1 "slot8; zero_lr; +radialradio2; T_hotkey2"
+alias +T_wheel_2 "map_T_cmd"
+alias -T_wheel_2 "-radialradio2; T_hotkey1; sens_reset; 
+  map_T_labels; resetradio"
+```
+
+**Actions:**
+- `+T_wheel_1`: Resets deadzone, loads labels, sets up wheel
+- `-T_wheel_1`: Equips smoke, zeros vertically, opens radio wheel
+- `+T_wheel_2`: Loads command tiles
+- `-T_wheel_2`: Closes wheel, resets sensitivity, restores labels
+
+### CT-Side Wheel
+
+Similar structure to T-side but with CT-specific lineups.
+
+## Auto-Lineup Technology
+
+### Lineup Command Structure
+
+<ParamField path="fAC" type="alias">
+  FACEIT Anti-Cheat compatible lineup execution.
+  
+  Executes angle + position commands in sequence:
+  ```cfg
+  cmd";fAC;d2_smoke_1_x;d2_smoke_1_y;d2_spawn_T_1;
+  ```
+  
+  This runs:
+  1. `fAC` - FACEIT compatibility layer
+  2. `d2_smoke_1_x` - Sets yaw angle
+  3. `d2_smoke_1_y` - Sets pitch angle  
+  4. `d2_spawn_T_1` - Teleports to position
+</ParamField>
+
+### Angle System
+
+<ParamField path="yaw" type="command">
+  Sets horizontal view angle.
+  
+  ```cfg
+  yaw -3265.04968 1 1
+  ```
+  
+  Parameters: `yaw [angle] [flag1] [flag2]`
+</ParamField>
+
+<ParamField path="pitch" type="command">
+  Sets vertical view angle.
+  
+  ```cfg
+  pitch 2617.45905 1 1
+  ```
+  
+  Parameters: `pitch [angle] [flag1] [flag2]`
+</ParamField>
+
+### Position System
+
+<ParamField path="setpos_exact" type="command">
+  Teleports to exact coordinates.
+  
+  ```cfg
+  setpos_exact -1181 -754 120.181259
+  ```
+  
+  Parameters: `setpos_exact [x] [y] [z]`
+</ParamField>
+
+## Sensitivity Management
+
+<ParamField path="reset_deadzone" type="alias">
+  Resets mouse deadzone for precise lineup angles.
+</ParamField>
+
+<ParamField path="zero_lr" type="alias">
+  Zeros left-right mouse movement during lineup.
+</ParamField>
+
+<ParamField path="sens_reset" type="alias">
+  Restores normal sensitivity after lineup.
+  
+  Calls `resetsens` defined in MAIN.cfg.
+</ParamField>
+
+## Mirage Spawn-Specific System
+
+Mirage includes spawn-specific lineup variations:
+
+```
+csafap/maps/mirage/
+├── mirage_labels_spawn1.cfg
+├── mirage_labels_spawn2.cfg
+├── mirage_labels_spawn3.cfg
+├── mirage_labels_spawn4.cfg
+├── mirage_labels_spawn5.cfg
+├── mirage_cmd_spawn1.cfg
+├── mirage_cmd_spawn2.cfg
+├── mirage_cmd_spawn3.cfg
+├── mirage_cmd_spawn4.cfg
+└── mirage_cmd_spawn5.cfg
+```
+
+Different spawn positions require different angles for instant smokes.
+
+## Radio Wheel Reset
+
+<ParamField path="csafap/maps/resetradio.cfg" type="file">
+  Resets all radio wheel tiles to default state.
+  
+  Clears custom commands from all 24 radio tiles (3 wheels × 8 tiles).
+</ParamField>
+
+## Setup Wheel System
+
+<ParamField path="csafap/maps/setup_wheel.cfg" type="file">
+  Configures the radio wheel interface for smoke lineups.
+  
+  Prepares the wheel system for displaying map-specific smokes.
+</ParamField>
+
+## Auto-Select Side
+
+<ParamField path="csafap/maps/auto_selectside.cfg" type="file">
+  Automatically detects current team and loads appropriate lineups.
+  
+  Switches between T and CT smoke configurations based on team.
+</ParamField>
+
+## Usage Examples
+
+### Example 1: Select Dust2 Map
+
+In console or via keybind (M key by default):
+```cfg
+// Press M to open map wheel
+// Select Dust2 from the wheel
+// Automatically loads dust2.cfg
+```
+
+### Example 2: T-Side Dust2 Mid Smoke
+
+```cfg
+// 1. Load Dust2 map config
+exec csafap/maps/dust2/dust2
+
+// 2. Press J (T-side smoke key)
+// 3. Select your spawn position from wheel
+// 4. Auto-lineup executes
+// 5. Throw smoke grenade
+```
+
+### Example 3: CT-Side Long House Smoke
+
+```cfg
+// 1. Be on CT side
+// 2. Press H (CT-side smoke key)
+// 3. Select "Long House" from wheel
+// 4. Auto-lineup executes
+// 5. Throw smoke grenade
+```
+
+### Example 4: Practice Mode
+
+```cfg
+// In MAIN.cfg map wheel:
+// Select "Practice Mode" tile
+// Choose map from practice mode wheel
+// Choose side (T or CT)
+// Access all lineups for that map/side
+```
+
+## FACEIT Compatibility
+
+The config includes FACEIT-compatible versions:
+
+```cfg
+// In MAIN.cfg, use these binds for FACEIT:
+bind "J" +fAC_T_action   // FACEIT T smokes
+bind "H" +fAC_CT_action  // FACEIT CT smokes
+```
+
+The `fAC` alias provides compatibility with FACEIT Anti-Cheat restrictions.
+
+## Complete Map List
+
+<CardGroup cols={2}>
+  <Card title="Ancient" icon="map">
+    Full T/CT smoke lineup support
+  </Card>
+  <Card title="Anubis" icon="map">
+    Full T/CT smoke lineup support
+  </Card>
+  <Card title="Dust2" icon="map">
+    Spawn-based instant smokes for mid/B doors
+  </Card>
+  <Card title="Inferno" icon="map">
+    Full T/CT smoke lineup support
+  </Card>
+  <Card title="Mirage" icon="map">
+    5 spawn variations for precise lineups
+  </Card>
+  <Card title="Nuke" icon="map">
+    Full T/CT smoke lineup support
+  </Card>
+  <Card title="Overpass" icon="map">
+    Full T/CT smoke lineup support
+  </Card>
+  <Card title="Thera" icon="map">
+    Full T/CT smoke lineup support
+  </Card>
+  <Card title="Train" icon="map">
+    Full T/CT smoke lineup support
+  </Card>
+  <Card title="Vertigo" icon="map">
+    Full T/CT smoke lineup support
+  </Card>
+</CardGroup>
+
+## File Structure
+
+```
+csafap/maps/
+├── map_cmd.cfg                    # Map selection wheel
+├── map_labels.cfg                 # Map selection labels
+├── T_labels.cfg                   # Global T-side labels
+├── CT_labels.cfg                  # Global CT-side labels
+├── no_map_labels.cfg              # No map selected state
+├── setup_wheel.cfg                # Wheel configuration
+├── resetradio.cfg                 # Reset radio wheel
+├── auto_selectside.cfg            # Auto team detection
+├── ancient/
+│   ├── ancient.cfg
+│   ├── ancient_T_cmd.cfg
+│   ├── ancient_T_labels.cfg
+│   ├── ancient_CT_cmd.cfg
+│   ├── ancient_CT_labels.cfg
+│   └── wheel_curr_map.cfg
+├── anubis/ (same structure)
+├── dust2/ (same structure)
+├── inferno/ (same structure)
+├── mirage/ (same structure + spawn variants)
+├── nuke/ (same structure)
+├── overpass/ (same structure)
+├── thera/ (same structure)
+├── train/ (same structure)
+└── vertigo/ (same structure)
+```
+
+## Related Pages
+
+- [Main Config](/reference/main-config) - Configure map selection keybind
+- [Movement Configs](/reference/movement-configs) - Movement configurations
+- [Crosshair Configs](/reference/crosshair-configs) - Crosshair features

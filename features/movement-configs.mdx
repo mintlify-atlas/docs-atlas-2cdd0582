@@ -1,0 +1,328 @@
+---
+title: 'Movement Configs'
+description: 'Snap-Tap/Null binds and de-subtick movement input configurations'
+---
+
+Movement configs provide enhanced WASD input handling with Snap-Tap (null binds) and de-subtick options for improved movement feel and counter-strafing.
+
+## Movement Types
+
+CSAFAP offers three movement configurations:
+
+<CardGroup cols={3}>
+  <Card title="Default" icon="keyboard">
+    Standard CS2 movement with subtick input
+  </Card>
+  <Card title="Null Binds" icon="right-left">
+    Snap-Tap style input cancellation
+  </Card>
+  <Card title="De-subtick" icon="clock">
+    Tick-aligned movement inputs
+  </Card>
+</CardGroup>
+
+## Null Binds (Snap-Tap)
+
+Null binds automatically cancel opposing movement keys, similar to Razer Snap-Tap keyboards.
+
+### How Null Binds Work
+
+```cfg
+// Null WASD logic (from csafap/movement/nullWASD.cfg)
+alias +nullW alias W! W+1
+alias -nullW alias W! W-1
+alias W! ""
+alias W< ""
+alias W> ""
+
+alias W+1 "W<; alias W! W+2"
+alias W+2 "alias W!; alias S< forward -9999 f u; alias S> +forward; +forward"
+
+alias W-1 "forward -9999 f u; alias W! W-2"
+alias W-2 "alias W!; alias S< +back; alias S>; W>"
+```
+
+When you:
+1. Hold **W** (forward)
+2. Press **S** (back) while still holding W
+3. S automatically cancels W input
+4. Release S → W resumes automatically
+
+Same logic applies to A/D (left/right strafe).
+
+### Null Binds Use Cases
+
+<AccordionGroup>
+  <Accordion title="Fast Jiggles">
+    Hold one strafe key and quickly tap the opposite for instant direction changes. Useful for:
+    - Pistol round AD spam
+    - Peeking corners with quick jiggles
+    - AWP shoulder peeks
+  </Accordion>
+  
+  <Accordion title="Counter-Strafing Correction">
+    Corrects the human error of not releasing the initial strafe key. You still need to release the counter-strafe key at the correct timing.
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+Null binds do NOT provide full auto-counter-strafe. Auto counter-strafe configs were patched by Valve on November 24, 2024.
+</Warning>
+
+### Enabling Null Binds
+
+<Steps>
+  <Step title="Open Crosshair Wheel">
+    Press your crosshair wheel key (default: **K**)
+  </Step>
+  
+  <Step title="Select Null Movement">
+    Choose "NULL MOVEMENT ON" from the wheel
+  </Step>
+  
+  <Step title="Confirm Activation">
+    You'll hear a confirmation sound (blip2)
+  </Step>
+</Steps>
+
+To disable: Select "DEFAULT MOVEMENT" from the same wheel.
+
+## De-subtick Movement
+
+De-subtick binds force movement inputs to wait for the next server tick instead of using CS2's subtick system.
+
+### How De-subtick Works
+
+```cfg
+// De-subtick WASD logic (from csafap/movement/desubtickWASD.cfg)
+alias +desubW "alias W! W+1"
+alias -desubW "alias W! W-1"
+alias W! ""
+
+alias W+1 "alias W! W+2"
+alias W+2 "alias W!; forward -9999 f u; +forward"
+
+alias W-1 "forward -9999 f u; alias W! W-2"
+alias W-2 "alias W!; -forward"
+```
+
+The `forward -9999 f u` command forces the input to wait for the next tick ("u" = until next tick).
+
+### De-subtick Benefits
+
+- More CS:GO-like movement feel
+- Consistent timing for movement inputs  
+- Better for players used to 64/128 tick servers
+- May improve bhop consistency
+
+<Info>
+Some players report de-subtick feels more predictable for counter-strafing. Test both to see which you prefer.
+</Info>
+
+### Enabling De-subtick
+
+<Steps>
+  <Step title="Open Crosshair Wheel">
+    Press your crosshair wheel key (default: **K**)
+  </Step>
+  
+  <Step title="Select De-subtick">
+    Choose "DESUBTICK ON" from the wheel
+  </Step>
+  
+  <Step title="Test Movement">
+    Move around and test the feel compared to default
+  </Step>
+</Steps>
+
+## Movement Config Files
+
+### Default Movement
+```cfg
+// csafap/movement/default.cfg
+bind W +forward
+bind A +left  
+bind S +back
+bind D +right
+
+// Visual indicator
+alias null_labels exec_default_labels
+alias null_cmd exec_default_cmd
+```
+
+### Null Binds (Ticker Version)
+```cfg  
+// csafap/movement/nullWASD.cfg
+// Requires -testscript launch option
+
+bind W +nullW
+bind A +nullA
+bind S +nullS  
+bind D +nullD
+
+alias null_labels exec_null_on_labels
+alias null_cmd exec_null_on_cmd
+```
+
+### De-subtick Binds
+```cfg
+// csafap/movement/desubtickWASD.cfg  
+// Requires -testscript launch option
+
+bind W +desubW
+bind A +desubA
+bind S +desubS
+bind D +desubD
+
+alias null_labels exec_desubtick_on_labels  
+alias null_cmd exec_desubtick_on_cmd
+```
+
+## Auto-Loading Movement Config
+
+Set your preferred movement config to load on game start:
+
+```cfg
+// In csafap/main.cfg
+
+// Option 1: Default movement (no special config)
+// (leave commented out)
+
+// Option 2: Null binds on launch
+exec csafap/movement/nullWASD
+
+// Option 3: De-subtick on launch  
+// exec csafap/movement/desubtickWASD
+```
+
+<Tip>
+You can switch between movement configs in-game using the crosshair wheel (K) without restarting.
+</Tip>
+
+## Movement Ticker Requirements
+
+<Warning>
+Both null binds and de-subtick require the ticker launch option:
+
+```
+-testscript "../../csgo/cfg/csafap/addons/.vtest"
+```
+
+Without this, movement configs will not work properly.
+</Warning>
+
+The ticker enables frame-by-frame alias execution:
+
+```cfg
+// Ticker aliases for WASD
+alias W! ""  // W ticker  
+alias A! ""  // A ticker
+alias S! ""  // S ticker
+alias D! ""  // D ticker
+```
+
+These are called every frame by the `.vtest` script, allowing the multi-stage input logic.
+
+## Jump Binds
+
+Movement configs also include de-subtick jump binds:
+
+```cfg
+// De-subtick jump (from desubtickWASD.cfg)
+alias +desubJump "alias J! J+1"
+alias -desubJump "alias J! J-1"
+alias J! ""
+
+alias J+1 "alias J! J+2"  
+alias J+2 "alias J!; jump -9999 f u; +jump"
+alias J-1 "jump -9999 f u; alias J! J-2"
+alias J-2 "alias J!; -jump"
+
+bind mwheeldown +desubJump
+bind mwheelup +desubJump
+```
+
+This provides:
+- Better bhop consistency (128-tick style)
+- Tick-aligned jump inputs
+- Works with `sv_jump_spam_penalty_time 0.0078125`
+
+## Crouch-Jump Bind
+
+Crouch-jump (longjump) for getting on boxes:
+
+```cfg
+// Crouch-jump bind example
+alias +cjump "+jump; +duck"
+alias -cjump "-jump; -duck"  
+bind "c" "+cjump"
+```
+
+<Info>
+Crouch-jump binds were not removed by Valve patches and still work in CS2.
+</Info>
+
+## FaceIt Compatibility
+
+<AccordionGroup>
+  <Accordion title="Null Binds on FaceIt">
+    FaceIt's Community Manager confirmed null binds (Snap-Tap) are allowed in ranked PUGs:
+    
+    [Official Reddit Response](https://www.reddit.com/r/FACEITcom/comments/1ea2tgz/comment/leim41n/)
+  </Accordion>
+  
+  <Accordion title="De-subtick on FaceIt">
+    De-subtick binds are allowed as they use the same alias commands as other features.
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Movement keys not working">
+    The ticker isn't loading. Check:
+    1. Launch option: `-testscript "../../csgo/cfg/csafap/addons/.vtest"`
+    2. Config loaded without errors (check console)
+    3. Commands in main.cfg aren't too long (breaks exec)
+  </Accordion>
+  
+  <Accordion title="Can't stop moving">
+    Press the opposite direction key or type in console:
+    ```
+    forward -9999 0 0
+    back -9999 0 0  
+    left -9999 0 0
+    right -9999 0 0
+    ```
+  </Accordion>
+  
+  <Accordion title="Null binds not canceling opposite key">
+    Make sure:
+    1. Ticker is loaded (check console for W! spam on launch)
+    2. You're using the ticker version (nullWASD.cfg, not nullWASD_noticker.cfg)
+    3. The bind actually loaded (type `bind w` in console to verify)
+  </Accordion>
+  
+  <Accordion title="Console spam: Unknown command W!">
+    Ticker aliases aren't initialized. This usually means:
+    - Missing launch option
+    - Config exec failed (command too long)
+    - Wrong file path (case-sensitive on Linux)
+  </Accordion>
+</AccordionGroup>
+
+## Comparison: Null vs De-subtick vs Default
+
+| Feature | Default | Null Binds | De-subtick |
+|---------|---------|------------|------------|
+| Input timing | Subtick | Subtick | Tick-aligned |
+| Opposite key cancel | No | Yes | No |
+| Counter-strafe assist | No | Partial | No |
+| CS:GO feel | No | No | Yes |
+| Ticker required | No | Yes | Yes |
+| Fast jiggles | Manual | Automatic | Manual |
+| Bhop feel | Subtick | Subtick | 128-tick style |
+
+<Tip>
+Try all three movement types to find what feels best for your playstyle. You can switch in-game without restarting using the crosshair wheel.
+</Tip>

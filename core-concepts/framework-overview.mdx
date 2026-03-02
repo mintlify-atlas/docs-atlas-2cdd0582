@@ -1,0 +1,154 @@
+---
+title: Framework Overview
+description: Understanding the CSAFAP Config Package architecture and core components
+---
+
+The CSAFAP Config Package is a sophisticated CS2 configuration framework built entirely on legal in-game commands and aliases. It enables advanced features like automatic line-ups, jumpthrow binds, and movement configurations through an innovative radio wheel interface.
+
+## Architecture
+
+The framework follows a modular architecture with several key components:
+
+### Entry Point: MAIN.cfg
+
+The `MAIN.cfg` file serves as the user-facing configuration hub where players customize their experience:
+
+```cfg
+// User sets their sensitivity
+alias resetsens "sensitivity 1.0 ; m_yaw 0.022 ; sensitivity_y_scale 1"
+
+// Base keybinds
+bind "M" +map_action          // Map selection + practice mode
+bind "J" +T_action            // T-side line-ups
+bind "H" +CT_action           // CT-side line-ups  
+bind "K" +crosshair_action    // Crosshairs, rapid fire, snap-tap
+```
+
+This file then loads the core framework logic:
+
+```cfg
+exec csafap/addons/loader
+```
+
+### Core Logic: logic.cfg
+
+The `logic.cfg` file contains the main framework logic, implementing:
+
+- **Alias system** for dynamic keybind switching
+- **Radio wheel mechanics** for interactive UI
+- **Zeroing system** for precise angle alignment
+- **Sensitivity management** for auto line-ups
+- **State management** for different game modes
+
+<Info>
+The framework is designed to work on official Valve servers, FaceIt, and other competitive platforms. All features use only commands available under `sv_cheats 0`.
+</Info>
+
+## Component Loader
+
+The loader system (`addons/loader.cfg`) initializes framework components in a specific order:
+
+```cfg
+// Load everything else
+exec csafap/addons/faceit/faceit
+exec csafap/addons/AveYo
+exec csafap/crosshair/rapid_followrecoil
+exec csafap/logic
+```
+
+### Module System
+
+The framework organizes features into modules:
+
+- **`maps/`** - Map-specific line-ups and configurations
+- **`movement/`** - Movement configurations (null binds, desubtick)
+- **`crosshair/`** - Pro crosshairs and follow-recoil
+- **`practice_mode/`** - Practice mode with guides and teleports
+- **`addons/`** - Advanced features and ticker system
+
+## Alias System
+
+The framework leverages CS2's `alias` command to create dynamic, context-aware keybinds. This allows a single key to perform different actions based on the current state.
+
+### Dynamic Hotkey Switching
+
+Example from `logic.cfg:6-11`:
+
+```cfg
+alias T_hotkey1 "alias +T_action +T_wheel_1; alias -T_action -T_wheel_1"
+alias T_hotkey2 "alias +T_action +T_wheel_2; alias -T_action -T_wheel_2"
+
+alias CT_hotkey1 "alias +CT_action +CT_wheel_1; alias -CT_action -CT_wheel_1"
+alias CT_hotkey2 "alias +CT_action +CT_wheel_2; alias -CT_action -CT_wheel_2"
+```
+
+These aliases create a two-phase system:
+
+1. **Phase 1**: First key press opens the radio wheel with labels
+2. **Phase 2**: Second key press executes the selected command
+
+The framework switches between phases by rebinding the action alias after each press.
+
+<Note>
+This two-phase approach allows the same key to both open the selection menu and confirm the choice, creating an intuitive user experience.
+</Note>
+
+## State Management
+
+The framework maintains state through alias chains:
+
+```cfg
+// From logic.cfg:19-22
+CT_hotkey1      // Load CT key bind
+T_hotkey1       // Load T key bind  
+movement_hotkey1  // Load movement key bind
+map_hotkey1     // Load map selection key bind
+```
+
+These initialization commands set the default state for each hotkey system.
+
+## Sensitivity System
+
+For auto line-ups to work accurately, the framework uses a standardized sensitivity:
+
+```cfg
+// From logic.cfg:29
+alias startsens "sensitivity 1.0;m_yaw 0.022;sensitivity_y_scale 1"
+```
+
+The system:
+1. Saves the player's original sensitivity (defined in `MAIN.cfg`)
+2. Switches to standard sensitivity for angle calculations
+3. Automatically restores player sensitivity after line-up execution
+
+```cfg
+// From logic.cfg:62-66
+alias sens_reset "bind mouse_x reset_mx; bind mouse_y reset_my"
+alias reset_mx "resetsens;dontlookup;original_mx"
+alias reset_my "resetsens;dontlookup;original_my"
+alias original_mx "bind mouse_x yaw"
+alias original_my "bind mouse_y pitch"
+```
+
+## Initialization and Loading
+
+The framework is loaded via launch options:
+
+```bash
++exec csafap/main -testscript "../../csgo/cfg/csafap/addons/.vtest"
+```
+
+This ensures:
+- Configuration loads before entering any server
+- Ticker system initializes properly (required for advanced features)
+- All aliases are registered before use
+
+<Info>
+The framework echoes a confirmation message on successful load:
+
+```
+- csafap Config Package successfully loaded -
+Written by ".FNScence"
+To change settings, edit csafap/MAIN.cfg
+```
+</Info>

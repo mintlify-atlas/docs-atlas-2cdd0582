@@ -1,0 +1,296 @@
+---
+title: 'Jumpthrow Binds'
+description: 'CS:GO-style jumpthrow and W-jumpthrow binds using ticker mechanics'
+---
+
+Jumpthrow binds allow you to execute perfect jumpthrows just like in CS:GO, using a ticker-based system that works on official servers.
+
+## How Jumpthrow Works
+
+CSAFAP uses a ticker mechanic (via `-testscript` launch option) to execute frame-perfect jumpthrows:
+
+```cfg
+// Jumpthrow logic (from csafap/addons/multi/JT.cfg)
+alias +JumpThrow alias JT! JT+1
+alias -JumpThrow alias JT! JT-1
+alias JT! ""
+
+alias JT+1 "M1>; alias JT! JT+2"
+alias JT+2 "M2>; alias JT! JT+3"
+alias JT+3 "alias JT!; +jump"
+alias JT-1 "jump -9999 f u; alias JT!"
+```
+
+This creates a sequence that:
+1. Releases left-click (M1)
+2. Releases right-click (M2)  
+3. Executes jump
+4. Resets all actions
+
+## Requirements
+
+<Warning>
+Jumpthrow binds REQUIRE the ticker launch option:
+
+```bash
+-testscript "../../csgo/cfg/csafap/addons/.vtest"
+```
+
+Without this, jumpthrows will not work.
+</Warning>
+
+You must also use special mouse binds:
+
+```cfg
+bind mouse1 +M1
+bind mouse2 +M2
+```
+
+These are automatically configured when you exec `csafap/main.cfg`.
+
+## Jumpthrow Types
+
+### Standard Jumpthrow (JT)
+
+Executes jump + release simultaneously:
+
+- Hold left-click (or right-click) to prepare grenade
+- Press jumpthrow bind
+- Grenade releases at peak of jump
+
+```cfg
+// Bind example (set in csafap/main.cfg)
+bind "space" "+JumpThrow"
+```
+
+### W-Jumpthrow (WJT)
+
+Adds forward movement for extra distance:
+
+- Hold left-click (or right-click) to prepare grenade  
+- Press W-jumpthrow bind
+- Character moves forward + jumps + releases grenade
+
+```cfg
+// W-Jumpthrow logic (from csafap/addons/multi/WJT.cfg)
+alias +WJumpThrow alias JT! WT+1
+alias -WJumpThrow alias JT! WT-1
+
+alias WT+1 "+forward; alias JT! WT+2"
+alias WT+2 "M1>; alias JT! WT+3"
+alias WT+3 "M2>;alias JT! WT+4"
+alias WT+4 "alias JT!;+jump"
+alias WT-1 "forward -9999 f u; alias JT! WT-2"
+alias WT-2 "alias JT!; jump -9999 f u"
+```
+
+<Tip>
+Bind W-jumpthrow to a separate key from standard jumpthrow for quick access to both.
+</Tip>
+
+## Setting Up Jumpthrow Binds
+
+<Steps>
+  <Step title="Add Launch Option">
+    Add to Steam launch options:
+    ```
+    -testscript "../../csgo/cfg/csafap/addons/.vtest"
+    ```
+  </Step>
+  
+  <Step title="Configure Main Config">
+    In `csafap/main.cfg`, set your jumpthrow binds:
+    
+    ```cfg
+    // Jumpthrow binds (ticker version)
+    bind "space" "+JumpThrow"     // Standard jumpthrow
+    bind "v" "+WJumpThrow"        // W-jumpthrow
+    ```
+  </Step>
+  
+  <Step title="Load Ticker System">
+    The ticker is automatically loaded when you exec `csafap/main.cfg` with the launch option active
+  </Step>
+  
+  <Step title="Test In-Game">
+    - Equip a grenade
+    - Hold left-click or right-click
+    - Press your jumpthrow bind
+    - Grenade should release at jump peak
+  </Step>
+</Steps>
+
+## Radio Wheel Method (Alternative)
+
+You can also use jumpthrows via radio wheel without ticker:
+
+```cfg
+// Radio wheel jumpthrow (from JT.cfg)
+cl_radial_radio_tab_2_text_1 "#CFG_JT"
+cl_radial_radio_tab_2_text_2 cmd";+jump;-attack;-attack2;-attack;-attack2;-jump;-jump;
+```
+
+This method:
+- Works without ticker launch option
+- Less convenient (requires radio wheel)  
+- Good for occasional jumpthrows
+
+## Ticker System Explanation
+
+The ticker uses `.vtest` file execution to create frame-by-frame alias updates:
+
+```cfg
+// Ticker initialization (from csafap/addons/AveYo.cfg)
+// Credit: AveYo for Gaming
+
+// Frame ticker runs aliases every frame
+alias W! ""   // Movement ticker
+alias A! ""
+alias S! ""
+alias D! ""
+alias M1! "" // Mouse ticker
+alias M2! ""
+alias JT! "" // Jumpthrow ticker
+```
+
+The `.vtest` file contains:
+```
+exec csafap/addons/loader
+```
+
+And `loader.cfg` calls all ticker aliases every frame, enabling frame-perfect inputs.
+
+## Mouse Bind Integration
+
+<CodeGroup>
+```cfg Standard Mouse (No Ticker Features)
+bind mouse1 +attack
+bind mouse2 +attack2
+```
+
+```cfg Ticker Mouse (Required for JT/Rapid Fire)
+alias +M1 "snd_toolvolume 0; alias M1! tick_master; init_loops; alias M1> -attack; +M1_logic"
+alias -M1 "alias M1! ""; -M1_logic; alias M1>; -attack; spec_next; snd_toolvolume 0.05"
+
+alias +M2 alias M2! M2+
+alias -M2 alias M2! M2-
+alias M2> ""
+
+alias M2+ "alias M2!; alias M2> -attack2; +attack2"
+alias M2- "alias M2!; alias M2>; attack2 -9999 f u; spec_prev"
+
+bind mouse1 +M1
+bind mouse2 +M2
+```
+</CodeGroup>
+
+The ticker mouse binds allow aliases to hook into click events, enabling:
+- Jumpthrow release on bind press
+- Rapid fire pistol mechanics  
+- Follow-recoil crosshair integration
+
+## Movement Reset After W-Jumpthrow
+
+W-jumpthrow uses delayed `-forward` to maintain forward velocity:
+
+```cfg
+// Reset movement stuck issue fix
+alias reset_JTmovement "forward -9999 f u"
+
+bind 3 +reset_JTmovement  // Knife switch resets
+bind mouse_x reset_JTmouse_x  // Mouse movement resets
+bind mouse_y reset_JTmouse_y
+```
+
+If you're stuck moving forward after W-jumpthrow:
+1. Switch to knife (press 3)
+2. Move your mouse
+3. Or type `forward -9999 0 0` in console
+
+<Warning>
+Moving forward after W-jumpthrow is intentional to maintain grenade velocity. The config automatically resets when you switch weapons or move your mouse.
+</Warning>
+
+## Compatibility with Movement Configs
+
+### Null Binds (Snap-Tap)
+
+Jumpthrow works with null binds, but W-jumpthrow may conflict:
+
+```cfg
+// If using nullWASD, W-bind might prevent jumpthrow movement
+// Solution: Use default movement for jumpthrows, or bind WJT separately
+bind W +forward  // Change this in nullWASD.cfg for WJT compatibility
+```
+
+### De-subtick Binds
+
+Fully compatible with de-subtick movement:
+
+```cfg
+// De-subtick jump bind (from desubtickWASD.cfg)
+alias +desubJump "alias J! J+1"
+alias -desubJump "alias J! J-1"
+alias J! ""
+
+alias J+1 "alias J! J+2"
+alias J+2 "alias J!; jump -9999 f u; +jump"
+alias J-1 "jump -9999 f u; alias J! J-2"
+alias J-2 "alias J!; -jump"
+```
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Can't jump after using jumpthrow">
+    You're using an outdated bind. Valve patched multi-input binds on October 28, 2024. Update to CSAFAP v1.9+ which uses the ticker method.
+    
+    Temporary fix: Type `-jump` in console (or `jump -9999 0 0`)
+  </Accordion>
+  
+  <Accordion title="Jumpthrow not executing">
+    Check:
+    1. Launch option `-testscript "../../csgo/cfg/csafap/addons/.vtest"` is set
+    2. You're using `bind mouse1 +M1` and `bind mouse2 +M2`
+    3. Config loaded without errors (check console on launch)
+    4. Not using commands longer than allowed (breaks exec queue)
+  </Accordion>
+  
+  <Accordion title="Stuck moving forward after W-jumpthrow">
+    This is normal. The bind uses delayed `-forward` to maintain velocity. Reset by:
+    - Pressing 3 (knife)
+    - Moving your mouse
+    - Typing `forward -9999 0 0` in console
+  </Accordion>
+  
+  <Accordion title="Console spam: Unknown command W!">
+    The ticker aliases aren't loading. This means:
+    1. Launch option is missing or incorrect
+    2. A command in `csafap/main.cfg` is too long (breaks exec)
+    3. Config file path is wrong (case-sensitive on Linux)
+    
+    Check console output immediately after game launch for errors.
+  </Accordion>
+  
+  <Accordion title="Right-click doesn't work on scoreboard">
+    Use this command:
+    ```cfg
+    cl_scoreboard_mouse_enable_binding +M2
+    ```
+    This is automatically set in `csafap/main.cfg`.
+  </Accordion>
+</AccordionGroup>
+
+## Alternative: Macro-Based Jumpthrow
+
+If you prefer not to use ticker system:
+
+1. Use a keyboard/mouse macro for standard jumpthrow
+2. Use the radio wheel method for occasional jumpthrows
+3. Use in-game bind for standard jump: `bind space +jump`
+
+See [this video tutorial](https://youtu.be/yqtJZFQSF_U) for macro setup.
+
+<Info>
+The ticker method is recommended as it's more reliable and works for both JT and WJT binds.
+</Info>

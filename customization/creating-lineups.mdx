@@ -1,0 +1,287 @@
+---
+title: Creating Custom Line-ups
+description: Learn how to create your own smoke line-ups and add them to the CSAFAP Config Package
+---
+
+The CSAFAP Config Package allows you to create your own custom line-ups and add them to the radio wheel system. This guide will walk you through the complete process of finding angles, calculating values, and integrating them into the config.
+
+## Video Tutorial
+
+For a detailed video explanation, watch [this timestamp](https://youtu.be/G9hAaifu2H0?si=3U4mB8vV8oWa-x8g&t=669) from the official tutorial.
+
+## Overview
+
+Creating a custom line-up involves 5 steps:
+
+1. Find the desired angle using `getpos` in-game
+2. Calculate yaw and pitch values using the formula
+3. Create an alias in the map's config file
+4. Create a label in the language file
+5. Bind the label and command to a radio tile
+
+## Step 1: Find the Desired Angle
+
+<Steps>
+  <Step title="Position yourself in-game">
+    Load the map in practice mode and position yourself at the exact spot where you want the line-up to start.
+  </Step>
+  
+  <Step title="Aim at the target">
+    Aim at the precise angle needed for your smoke/flash/molotov to land correctly.
+  </Step>
+  
+  <Step title="Use getpos command">
+    Type `getpos` in the console to get your current position and angles:
+    
+    ```
+    getpos
+    setpos 1296.000000 32.000000 -167.96875; setang -35.250259 -148.314117 0
+    ```
+    
+    The format is: `setpos X Y Z; setang PITCH YAW ROLL`
+  </Step>
+  
+  <Step title="Record the values">
+    Note down:
+    - **Position**: X, Y, Z coordinates (for teleporting)
+    - **Pitch**: Vertical angle (first number in setang)
+    - **Yaw**: Horizontal angle (second number in setang)
+  </Step>
+</Steps>
+
+## Step 2: Calculate Yaw and Pitch Values
+
+Use the following formula to calculate the yaw and pitch values needed for the config:
+
+$$
+X = \frac{a}{s \times m\_yaw}
+$$
+
+### Formula Variables
+
+- **X**: Desired yaw/pitch value (what you need to calculate)
+- **a**: Angle you need to move (in degrees)
+- **s**: Sensitivity (use 1.0 for calculations)
+- **m_yaw**: Horizontal sensitivity multiplier (use 0.022)
+
+### Calculating the Angle to Move
+
+The angle `a` is calculated from a zero reference point:
+
+- **Horizontal (Yaw)**: The angle difference from your starting yaw to target yaw
+- **Vertical (Pitch)**: The angle difference from -89° to your target pitch
+
+<Warning>
+  Since version 2.15, auto line-ups zero the vertical view angle at -89° instead of 0°. You must add `+4045.45454545` to your calculated pitch value.
+</Warning>
+
+### Example Calculation
+
+Let's create a line-up for the angle: `setang -35.250259 -148.314117 0`
+
+**Yaw calculation:**
+```
+Angle needed: -148.314117°
+X = -148.314117 / (1.0 × 0.022)
+X = -148.314117 / 0.022
+X = -6741.55077
+```
+
+**Pitch calculation:**
+```
+Angle needed: -35.250259°
+Angle from -89°: -89 - (-35.250259) = -53.749741°
+X = -53.749741 / (1.0 × 0.022) + 4045.45454545
+X = -2443.17004545 + 4045.45454545
+X = 1602.2845
+```
+
+<Note>
+  The config uses sensitivity 1.0 and m_yaw 0.022 for line-up calculations. Your actual sensitivity is applied separately through the `resetsens` alias.
+</Note>
+
+## Step 3: Create an Alias
+
+Add your calculated values to the map's config file in `csafap/maps/[mapname]/[mapname].cfg`:
+
+```cfg
+// Instant top connector smoke from spawn 1
+alias mir_smoke_1_5_x "yaw -6741.55077 1 1"
+alias mir_smoke_1_5_y "pitch 1602.2845 1 1"
+```
+
+### Alias Naming Convention
+
+Follow the existing naming pattern:
+- Map prefix (e.g., `mir_` for Mirage)
+- Type (e.g., `smoke_`)
+- Spawn number and lineup number (e.g., `1_5`)
+- Suffix `_x` for yaw, `_y` for pitch
+
+**Example:**
+```cfg
+alias mir_smoke_1_5_x "yaw -6741.55077 1 1"  // Horizontal aim
+alias mir_smoke_1_5_y "pitch 1602.2845 1 1"   // Vertical aim
+```
+
+## Step 4: Create a Label
+
+Add a text label in `csgo/resource/platform_english.txt`:
+
+```txt
+"CFG_MIR_TOP_CON"     "Top Connector\n Smoke\n  \n  \n  \n  \n "
+```
+
+### Label Guidelines
+
+- Use `\n` for line breaks
+- Keep text concise and descriptive
+- Add trailing spaces and `\n` to fill the radio tile
+- Use the `CFG_` prefix followed by map and lineup name
+
+<Warning>
+  Changes to `platform_english.txt` require a game restart to take effect.
+</Warning>
+
+## Step 5: Bind to Radio Tile
+
+### Add the Label
+
+In `csafap/maps/[mapname]/[mapname]_T_labels.cfg` (or `_CT_labels.cfg`):
+
+```cfg
+cl_radial_radio_tab_0_text_3 "#CFG_MIR_TOP_CON"
+```
+
+### Add the Command
+
+In `csafap/maps/[mapname]/[mapname]_T_cmd.cfg` (or `_CT_cmd.cfg`):
+
+```cfg
+cl_radial_radio_tab_0_text_3 cmd";fAC;mir_smoke_1_5_x;mir_smoke_1_5_y;mir_spawn_T_1;
+```
+
+### Command Structure
+
+```cfg
+cl_radial_radio_tab_X_text_Y cmd";fAC;[yaw_alias];[pitch_alias];[spawn_alias];
+```
+
+Where:
+- **X**: Radio tab number (0, 1, or 2)
+- **Y**: Tile position (1-8)
+- **fAC**: FaceIt-compatible auto-lineup mode
+- **yaw_alias**: Your horizontal aim alias
+- **pitch_alias**: Your vertical aim alias  
+- **spawn_alias**: Spawn teleport position (optional)
+
+## Complete Example: Mirage Top Connector
+
+Here's a complete example for a Mirage instant top connector smoke:
+
+### 1. In-game angle
+```
+getpos
+setpos 1296.000000 32.000000 -167.96875; setang -35.250259 -148.314117 0
+```
+
+### 2. Calculated values
+- Yaw: -6741.55077
+- Pitch: 1602.2845 (after adding offset)
+
+### 3. In `csafap/maps/mirage/mirage.cfg`
+```cfg
+// instant top con smoke from spawn 1
+alias mir_smoke_1_5_x "yaw -6741.55077 1 1"
+alias mir_smoke_1_5_y "pitch 1602.2845 1 1"
+alias mir_spawn_T_1 "setpos 1296.000000 32.000000 -167.96875"
+```
+
+### 4. In `csgo/resource/platform_english.txt`
+```txt
+"CFG_MIR_TOP_CON"     "Top Connector\n Smoke\n  \n  \n  \n  \n "
+```
+
+### 5. In `csafap/maps/mirage/mirage_T_labels.cfg`
+```cfg
+cl_radial_radio_tab_0_text_3 "#CFG_MIR_TOP_CON"
+```
+
+### 6. In `csafap/maps/mirage/mirage_T_cmd.cfg`
+```cfg
+cl_radial_radio_tab_0_text_3 cmd";fAC;mir_smoke_1_5_x;mir_smoke_1_5_y;mir_spawn_T_1;
+```
+
+## Pitch Offset Explanation
+
+<Info>
+  The pitch offset of `+4045.45454545` exists because the config zeroes vertical angle at -89° (looking down) instead of 0° (looking straight ahead).
+</Info>
+
+Calculation:
+```
+89 / 0.022 = 4045.45454545
+```
+
+This offset must be added to all pitch values when creating line-ups.
+
+## Testing Your Line-up
+
+<Steps>
+  <Step title="Restart the game">
+    Changes to `platform_english.txt` require a full game restart.
+  </Step>
+  
+  <Step title="Reload the config">
+    Type `exec csafap/main` in console to reload the config.
+  </Step>
+  
+  <Step title="Load the map">
+    Use the map wheel to select your map.
+  </Step>
+  
+  <Step title="Test the line-up">
+    Open the T or CT wheel, select your custom line-up, and throw the grenade.
+  </Step>
+  
+  <Step title="Adjust if needed">
+    If the angle is slightly off, adjust the yaw/pitch values and repeat.
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+### Line-up aims wrong direction
+
+**Problem:** The auto-aim points 180° away from target.
+
+**Solution:** Check your yaw calculation. Make sure you're calculating the angle difference correctly.
+
+### Vertical aim is incorrect
+
+**Problem:** Horizontal aim is perfect but vertical aim is off.
+
+**Solution:** Verify you added the pitch offset (+4045.45454545) to your calculated pitch value.
+
+### Radio tile is empty
+
+**Problem:** The radio tile shows no text.
+
+**Solution:** 
+1. Check that you added the label to `platform_english.txt`
+2. Verify the label name matches in both files (with `#` prefix in labels file)
+3. Restart the game for language file changes to take effect
+
+### Line-up doesn't execute
+
+**Problem:** Selecting the radio tile does nothing.
+
+**Solution:**
+1. Verify the command syntax in `_cmd.cfg` ends with `;`
+2. Check that alias names match between the config file and command file
+3. Make sure the radio tile numbers match in both labels and cmd files
+
+## See Also
+
+- [Sensitivity Configuration](/customization/sensitivity) - Required for line-ups to work correctly
+- [Custom Radio Wheels](/customization/custom-radio-wheels) - Create custom radio wheel systems

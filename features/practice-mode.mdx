@@ -1,0 +1,228 @@
+---
+title: 'Practice Mode'
+description: 'In-game map guides with 1,000+ lineups for all 9 competitive CS2 maps'
+---
+
+Practice Mode provides in-game offline map guides featuring over 1,000 line-ups across all 9 competitive maps. It includes dynamic annotation loading, spawn teleports, and comprehensive practice commands.
+
+## Activating Practice Mode
+
+<Steps>
+  <Step title="Open Map Wheel">
+    Press your map wheel key (default: **M**) to open the map selection
+  </Step>
+  
+  <Step title="Enable Practice Mode">
+    Select "ENABLE PRAC-MODE" from the wheel
+  </Step>
+  
+  <Step title="Choose Map">
+    Select your desired map from the wheel. The server will automatically load the map with practice settings
+  </Step>
+</Steps>
+
+<Tip>
+Practice mode must be run from the main menu or on game launch, not while already on a server.
+</Tip>
+
+## Practice Mode Settings
+
+When practice mode activates, it automatically configures:
+
+```cfg
+sv_cheats 1
+sv_infinite_ammo 2
+sv_grenade_trajectory_prac_trailtime 8
+sv_grenade_trajectory_prac_pipreview 1
+sv_noclipspeed 1200
+sv_enablebunnyhopping 1
+sv_jump_spam_penalty_time 0.0078125  // 128tick bhops
+sv_regeneration_force_on 1
+sv_showimpacts_time 10
+sv_allow_annotations 1
+
+mp_roundtime_defuse 1.92
+mp_freezetime 0
+mp_maxmoney 60000
+mp_startmoney 60000
+mp_buy_anywhere 1
+mp_randomspawn 1
+mp_ignore_round_win_conditions 1
+```
+
+## Radio Wheels in Practice Mode
+
+Once practice mode is active, the radio wheels change functionality:
+
+### Map Wheel (M)
+- **Change Level**: Select a different competitive map
+- **Disable Practice Mode**: Return to normal settings
+
+### CT Wheel (H)
+- **Spawn Teleports**: Teleport to CT spawn positions 1-5
+- Scroll mouse wheel for additional spawn positions
+
+### T Wheel (J)
+Access to practice commands:
+
+- **Show/Hide Guides**: Toggle CT/T side annotation guides
+- **Noclip**: Toggle noclip mode with HUD
+- **Impacts**: Toggle bullet impact visualization
+- **Show Position**: Display current position coordinates
+- **3rd Person**: Toggle third-person camera
+- **X-Ray**: Toggle X-ray vision through walls
+- **No Spread**: Remove weapon spread
+- **Regeneration**: Toggle health regeneration
+- **Quake Sounds**: Enable/disable quake-style sound effects
+- **Bot Controls**: Bot offset, stop, and crouch toggles
+
+<Info>
+Scroll the mouse wheel while the T wheel is open to access additional practice commands.
+</Info>
+
+## Map Guides & Annotations
+
+Practice mode loads dynamic in-game annotations showing:
+
+- Grenade lineups (smokes, flashes, molotovs)
+- Positioning spots
+- Wallbang locations
+- Execute strategies
+- Solo plays and site takes
+
+Annotations are split into:
+- **CT-Side**: Defensive lineups and positions
+- **T-Side**: Offensive lineups and executes
+
+<Steps>
+  <Step title="Load Map">
+    Enable practice mode and select a map
+  </Step>
+  
+  <Step title="Select Side">
+    Use the T wheel to toggle between CT and T side guides
+  </Step>
+  
+  <Step title="View Annotations">
+    Annotations appear automatically showing lineup positions
+  </Step>
+  
+  <Step title="Practice Lineups">
+    Stand on the marked position and follow the visual guide
+  </Step>
+</Steps>
+
+## Spawn Teleports
+
+Each map has precise spawn position teleports (1-5) for practicing instant smokes:
+
+```cfg
+// Example: Ancient CT spawn positions
+alias anc_spawn_CT_1 "setpos -716.5 1855.25 111.0; setang 0.0 -90.0 0"
+alias anc_spawn_CT_2 "setpos -394.0 1852.0 112.0; setang 0.0 -90.0 0"
+alias anc_spawn_CT_3 "setpos -79.8 1851.0 112.0; setang 0.0 -90.0 0"
+alias anc_spawn_CT_4 "setpos 232.5 1852.0 112.0; setang 0.0 -90.0 0"
+alias anc_spawn_CT_5 "setpos 549.0 1852.0 112.0; setang 0.0 -90.0 0"
+```
+
+Use the CT wheel (H) to teleport directly to any spawn position.
+
+## Supported Maps
+
+Practice mode includes full lineup guides for all 9 competitive maps:
+
+<CardGroup cols={3}>
+  <Card title="Ancient" icon="monument">
+    1,000+ CT/T lineups and wallbangs
+  </Card>
+  <Card title="Anubis" icon="landmark">
+    Full site executes and defensive setups
+  </Card>
+  <Card title="Dust2" icon="desert">
+    Classic lineups and wallbang spots
+  </Card>
+  <Card title="Inferno" icon="fire">
+    Banana control and A site smokes
+  </Card>
+  <Card title="Mirage" icon="window">
+    Window smokes and A execute lineups
+  </Card>
+  <Card title="Nuke" icon="radiation">
+    Vertical wallbangs and site smokes
+  </Card>
+  <Card title="Overpass" icon="bridge">
+    Monster smokes and B site control
+  </Card>
+  <Card title="Train" icon="train">
+    Ivy lineups and A/B site setups
+  </Card>
+  <Card title="Vertigo" icon="building">
+    Mid control and site executes
+  </Card>
+</CardGroup>
+
+## Practice Commands Reference
+
+| Command | Description |
+|---------|-------------|
+| `show_guide` | Toggle annotation visibility |
+| `noclip_toggle` | Toggle noclip mode |
+| `impacts_toggle` | Show/hide bullet impacts |
+| `showpos_toggle` | Display position coordinates |
+| `3rdperson_toggle` | Toggle camera view |
+| `xray_toggle` | Toggle X-ray vision |
+| `penetration_toggle` | Show penetration values |
+| `regen_toggle` | Toggle health regeneration |
+| `botstop_toggle` | Freeze/unfreeze bots |
+
+## Creating Custom Lineups
+
+<Steps>
+  <Step title="Find Position">
+    Use `getpos` in-game to get your current position and angles
+  </Step>
+  
+  <Step title="Calculate Values">
+    Calculate yaw/pitch values using the formula:
+    
+    `X = angle / (sensitivity × m_yaw)`
+    
+    Where sensitivity = 1.0 and m_yaw = 0.022
+    
+    For pitch values, add +4045.45454545 (vertical angle offset)
+  </Step>
+  
+  <Step title="Create Alias">
+    Add your lineup alias in `csafap/logic.cfg`
+  </Step>
+  
+  <Step title="Create Label">
+    Add label text in `platform_english.txt`
+  </Step>
+  
+  <Step title="Bind to Radio">
+    Link the label and command in map-specific config files:
+    - `csafap/maps/[mapname]_labels.cfg`
+    - `csafap/maps/[mapname]_cmd.cfg`
+  </Step>
+</Steps>
+
+<Warning>
+Edits to `platform_english.txt` require a game restart to take effect.
+</Warning>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Annotations not loading">
+    Make sure you enabled practice mode from the main menu before joining a server. The command `sv_allow_annotations 1` requires server permissions.
+  </Accordion>
+  
+  <Accordion title="Spawn teleports kick from server">
+    Spawn teleport commands use `setpos` which only works with `sv_cheats 1`. They're designed for offline practice, not online matches.
+  </Accordion>
+  
+  <Accordion title="Wrong spawn positions">
+    Some maps had spawn positions updated in recent patches. Check for the latest CSAFAP version with updated spawn coordinates.
+  </Accordion>
+</AccordionGroup>

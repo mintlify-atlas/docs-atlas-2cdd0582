@@ -1,0 +1,288 @@
+---
+title: Frequently Asked Questions
+description: Common questions about the CSAFAP Config Package including legality, installation, and usage
+---
+
+<AccordionGroup>
+
+<Accordion title="Q1: Is this allowed on MM, PREMIER?">
+Yes! This config package works purely on in-game commands which work under SV cheats 0, and a modified language text file.
+</Accordion>
+
+<Accordion title="Q2: Is this allowed on Faceit?">
+**Yes!** The CSAFAP config package **IS ALLOWED** for your normal ranked PUGS.
+
+See responses from Faceit support about yaw/pitch commands and custom radio wheels [HERE](https://imgur.com/a/NkOc7VZ).
+
+See responses from Faceit's Community Manager about [Null binds (aka snap-tap)](https://www.reddit.com/r/FACEITcom/comments/1ea2tgz/comment/leim41n/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button).
+
+See responses from Faceit's Community Manager about Automatic counter-strafe configs, [Part 1](https://imgur.com/a/automatic-counter-strafe-config-allowed-on-faceit-yes-dcOlGBK) and [Part 2](https://www.reddit.com/r/FACEITcom/comments/1etp7di/comment/lifb8hf/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button).
+
+<Warning>
+They are not allowed in higher leagues like ESEA, ESL, etc. as their rules are more strict and prohibit the use of the alias command in general. [Source](https://x.com/FACEIT_Darwin/status/1817926901689917525).
+</Warning>
+</Accordion>
+
+<Accordion title="Q3: How to install and run/execute a config in CS2?">
+**Step 1:** Save the config at this path:
+
+```
+C:\Program Files (x86)\Steam\steamapps\common\Counter-Strike Global Offensive\game\csgo\cfg
+```
+
+To create a new config, copy an existing `.cfg` file, rename it, and edit its content.
+
+**Step 2:** Execute it by either:
+- Typing `exec filename` (when using a config named `filename.cfg`) into the in-game console
+- Adding the same command to an existing config that gets executed automatically
+</Accordion>
+
+<Accordion title="Q4: How to make an autoexec (automatically executing config at game start)?">
+In your Steam library, right-click CS2 > Properties > General > Under launch options insert:
+
+```
++exec filename
+```
+</Accordion>
+
+<Accordion title="Q5: I get an error when trying to exec csafap/main...?">
+If you see this error:
+
+```
+exec csafap/main
+[InputService] exec: couldn't exec '{*}cfg/csafap/main.cfg', unable to read file
+```
+
+You've saved the CSAFAP config package at the wrong path.
+
+Most likely you accidentally placed it in the directory for the old game CS:GO (instead of CS2), or you didn't take the csafap folder out of the GitHub repo folder.
+
+**Correct path:** `.../steamapps/common/Counter-Strike Global Offensive/game/csgo/cfg/csafap` ✅
+
+**Wrong paths:**
+- `.../steamapps/common/Counter-Strike Global Offensive/csgo/cfg/csafap` ❌
+- `.../steamapps/common/Counter-Strike Global Offensive/game/csgo/cfg/csafap-config-package/csafap` ❌
+
+If you're on Linux, make sure you wrote `exec csafap/main` correctly, as it is case sensitive.
+</Accordion>
+
+<Accordion title="Q6: How to make the binds work on azerty (french) keyboard layout?">
+Make sure to use scancode binds instead of letters when adjusting the binds in `csafap/main.cfg`.
+
+Here are [all qwerty keys and their respective scancodes](https://github.com/libsdl-org/SDL/blob/main/include/SDL3/SDL_scancode.h#L218) and this is a [scancode bind converter](https://totalcsgo.com/binds/converter) which might be helpful.
+</Accordion>
+
+<Accordion title="Q7: Why does my sensitivity change to 1.0 and doesn't switch back to my playing sens?">
+Set your sensitivity at the top of `csafap/main.cfg`. Auto sensitivity detection got patched by Valve.
+</Accordion>
+
+<Accordion title="Q8: What is Snap-Tap/Nulls? Should I use it? Will I get kicked for using it?">
+It's best to try them yourself and see if you prefer it over default movement.
+
+**nullWASD:** After holding down the initial strafe key, pressing the opposite strafe key will deactivate the initial one. For counter-strafing, this only corrects the human error of not letting go of the initial strafe key, but you still have to release the opposite one at the correct timing. It is good for extremely fast jiggles (holding down one strafe key and quickly tapping the opposite one), not too useful in CS though (maybe for pistol round AD spam).
+
+**desubtick:** Very similar to default movement, but the WASD movement inputs will wait for the next tick to register instead of being subticked and registered immediately. Some users report a more CS:GO-like movement feel.
+</Accordion>
+
+<Accordion title="Q9: How to calculate yaw/pitch values?">
+Use this formula:
+
+$$X = \frac{a}{s \cdot m\_yaw}$$
+
+Where:
+- **X** = desired yaw/pitch value
+- **a** = angle you need to move [°]
+- **s** = sensitivity (we're using s = 1.0)
+- **m_yaw** = adjust your mouse sensitivity only on the X axis (we're using m_yaw = 0.022)
+
+**Note:** If you want to include custom line-ups, because we are now (since v.2.15) zeroing the vertical viewangle at -89° instead of at 0°, you need to add `+4045.45454545` to your calculated pitch value.
+</Accordion>
+
+<Accordion title="Q10: The radio tiles are empty/blank. How to get the text working?">
+Make sure to follow step 2 of the installation instructions, by copying the `csgo` folder from the `csafap` directory to your game's installation path.
+
+This places `../csafap/csgo/resource/platform_english.txt` in the correct folder. Edits to this file require a game restart to take effect.
+
+```
+C:\Program Files (x86)\Steam\steamapps\common\Counter-Strike Global Offensive\game\csgo\resource\platform_english.txt
+```
+
+You can debug by typing `cl_radialradio` into the console and checking the autofill options.
+</Accordion>
+
+<Accordion title="Q11: It falsely selects the radio tile next to the one I am aiming at.">
+This is an issue with cursor displacement when playing on windowed or fullscreen-windowed while NOT on native resolution.
+
+**Solution option 1:**
+
+Change desktop resolution to in-game resolution before launching the game. This [CS2 launcher PowerShell script](https://old.reddit.com/r/GlobalOffensive/comments/1g56n34/cs2_launcher_script_update/) can do that automatically for you.
+
+**Solution option 2:**
+
+Before selecting the radio wheel tile, make sure you move your mouse over the tile you want to choose after the text disappears.
+
+**Solution option 3:**
+
+It seems like the cursor gets displaced to the right after pressing the keybind again. Make sure to place your mouse more to the left on the tile. Pulling outside of the circle helps, as the tiles are extended to the edge of the screen at that moment.
+</Accordion>
+
+<Accordion title="Q12: Why do I stop running when using the jumpthrow binds?">
+This is caused by the W-bind of NullWASD. Make sure to use default movement (for JT), or change `csafap/movement/nullWASD.cfg` to use `bind W +forward` instead. 
+
+I recommend using a macro for Jumpthrow and the bind from this config for WJT. Here is how to set up a JT macro: https://youtu.be/yqtJZFQSF_U
+</Accordion>
+
+<Accordion title="Q13: Why can't I stop moving forward after W-Jumpthrow?">
+When using the W-JT bind, `-forward` has to be used delayed, otherwise the bind would be a simple jumpthrow without the 30 u/s forward velocity.
+
+Switching to your knife by pressing `3` - or moving your crosshair - should reset this action. If not, you might have issued `+forward` multiple times without canceling it multiple times.
+
+**Short term fix:** Use this in console:
+```
+forward -999 0 0
+```
+
+**Long term fix:** Make sure the same command is saved in `csafap/addons/-forward.cfg`, which should be called by an alias bound to the key `3`, as well as `mouse_x` and `mouse_y` after using the WJT bind.
+</Accordion>
+
+<Accordion title="Q14: I can't jump!!1! How to reset jumping binds?">
+The [update of October 28, 2024](https://steamcommunity.com/games/CSGO/announcements/detail/4522269457743085933) patched our multi-input methods, meaning only the first action of a bind will be issued and the rest ignored.
+
+That means, using a pre-patch de-subtick jump bind now will use `+jump` but NOT issue `-jump`, resulting in you not being able to jump anymore afterwards. 
+
+Typing `-jump` into the console will fix this issue, but you might need to use it multiple times if you spammed the old-dated jumping bind multiple times:
+```
+jump -999 0 0
+```
+
+Now use working jump binds by either resetting your binds to default (`bind mwheeldown +jump`) or by using the newest version of the CSAFAP config package.
+</Accordion>
+
+<Accordion title="Q15: How to bind custom commands to the radiowheel (without using the config package)?">
+You can find the most basic set of configs to bind your own radio commands on the CS AFAP Discord in the pinned messages of the `#auto-lineup-config` channel.
+
+Join the **CS AFAP DISCORD SERVER** [HERE](https://discord.gg/cs-as-fast-as-possible-992407294866370681).
+
+**Step 1:** Within your own auto-exec, create a bind which opens the radio wheel and switches between two phases (labels and commands):
+
+```cfg
+bind J +wheel_1                               // Keybind to custom wheel_1
+
+alias +wheel_1 "exec CustomRadio/radio_labels"  // Call custom text
+alias -wheel_1 "+radialradio; bind J +wheel_2"
+alias +wheel_2 "exec CustomRadio/radio_cmd"     // Call custom commands
+alias -wheel_2 "-radialradio; bind J +wheel_1"
+```
+
+**Step 2:** Create a label within the language file `platform_english.txt`:
+
+```
+"CFG_NOCLIP"          "NOCLIP \n without HUD \n  \n  \n  \n  \n "
+```
+
+**Step 3:** Call this label on an empty radio tile within a separate config, e.g.: `CustomRadio/radio_labels.cfg`:
+
+```cfg
+cl_radial_radio_tab_0_text_1 "#CFG_NOCLIP"
+```
+
+**Step 4:** Enter the desired commands within another separate config, e.g.: `CustomRadio/radio_cmd.cfg` using the same radio tile as in the previous step:
+
+```cfg
+cl_radial_radio_tab_0_text_1 cmd";noclip;toggle cl_drawhud 0 1;toggle r_drawviewmodel 0 1;
+```
+
+This line has to end with `;` and cannot contain any `"` after `cmd";`. To use commands which need `"`, within your own autoexec create an alias:
+
+```cfg
+alias do_something "bind c \"toggle sv_noclipspeed 50 800\""
+```
+
+... and call that one instead (within `CustomRadio/radio_cmd.cfg`):
+
+```cfg
+cl_radial_radio_tab_0_text_1 cmd";do_something;
+```
+</Accordion>
+
+<Accordion title="Q16: How to practice instant spawns? Where can I find teleport commands to those spawns?">
+**Option 1:**
+
+Launch the CSAFAP practice mode and use the CT-wheel-bind (default: H) to teleport directly to the desired spawn. Use the mouse scroll wheel to access more options while the radio wheel is open. Note that the numbering might differ from those of other practice services.
+
+**Option 2:**
+
+Offline with bots, set `mp_randomspawn 0` and `bind m "mp_restartgame 1"`. You can save a position by taking the first two values from `getpos` and the third from `getpos_exact`.
+
+You can also find `setpos` commands to every spawn in the description of videos showing instant smokes.
+
+[YouTube playlists](https://www.youtube.com/@FNScence/playlists) sorted by maps.
+</Accordion>
+
+<Accordion title="Q17: On scoreboard, the right-click is not working.">
+If you are using JT, WJT, rapid fire, or follow-recoil features, you also need to use `bind mouse2 +M2`. To make the scoreboard work with that, use:
+
+```
+cl_scoreboard_mouse_enable_binding +M2
+```
+
+If you are not using those features and use the default `bind mouse2 +attack2`, you need to use:
+
+```
+cl_scoreboard_mouse_enable_binding +attack2
+```
+</Accordion>
+
+<Accordion title="Q18: Why is rapid fire and/or follow recoil mode not working?">
+Firstly, make sure you are setting all the requirements for it:
+- Using launch option: `-testscript "../../csgo/cfg/CSAFAP/addons/.vtest"`
+- Setting `ef_...` binds in `csafap/main.cfg`
+
+Secondly, these features are framerate dependent. By default they work at >150 FPS. If you get less, you need to rename:
+
+```
+csafap/crosshair/rapid_followrecoil_lessthan150FPS.cfg
+```
+
+to:
+
+```
+csafap/crosshair/rapid_followrecoil.cfg
+```
+
+Rapid fire is only enabled for pistols, so take out your pistol (by pressing the keybind you assigned `ef_slot2` to) after activating the feature.
+</Accordion>
+
+<Accordion title="Q19: Why is it that when I use crosshair and rapid fire, the grenades fire automatically as soon as I switch to them??">
+You need to use the `ef_...` binds towards the bottom of `csafap/main.cfg`, as they are a requirement for follow-recoil and rapid fire features.
+</Accordion>
+
+<Accordion title="Q20: Why is my console getting spammed with 'Unknown command: W!...'?">
+The launch option `-testscript "../../csgo/cfg/csafap/addons/.vtest"` spawns these aliases every frame. If the aliases are not assigned on game launch, this will happen and other binds using the ticker function (including movement and mouse binds) will not work.
+
+We initialize these aliases on game launch by using the launch option `+exec csafap/main`, but if a command is too long (for example the `alias reset_crosshair "..."` at the bottom of `csafap/main.cfg`) the exec queue will exit causing this issue. 
+
+To debug this, you can take out the vtest launch option and check console output directly after game launch or `exec csafap/main` to look for potential errors after loading the config initially.
+</Accordion>
+
+<Accordion title="Q21: Why do movement keys and mouse buttons no longer work after installing?">
+Same cause as in Q20 above.
+
+The ticker aliases are not properly initialized. See Q20 for the full explanation and debugging steps.
+</Accordion>
+
+<Accordion title="Q22: How to uninstall the config package?">
+Simply overwrite the keybinds used by this config package (`1, 2, 3, N, H, J, K, M, space, Q, W, A, S, D`) and don't use the launch options `+exec csafap/main -testscript "../../csgo/cfg/csafap/addons/.vtest"` anymore.
+
+To make right-click work on scoreboard again after using ticker features, you need to use this command once:
+
+```
+cl_scoreboard_mouse_enable_binding +attack2
+```
+
+If any questions remain, join the CS AFAP Discord and feel free to ask in the `#csafap-config` or `#help` channel:
+
+> Join the **CS AFAP DISCORD SERVER** [HERE](https://discord.gg/cs-as-fast-as-possible-992407294866370681).
+</Accordion>
+
+</AccordionGroup>

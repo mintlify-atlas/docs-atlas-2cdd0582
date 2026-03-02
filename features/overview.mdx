@@ -1,0 +1,105 @@
+---
+title: 'Features Overview'
+description: 'Complete guide to all CSAFAP Config Package features for CS2'
+---
+
+The CSAFAP Config Package provides advanced configuration features for Counter-Strike 2, all legal to use on official Valve matchmaking, Premier servers, and FaceIt.
+
+## All Features
+
+<CardGroup cols={2}>
+  <Card title="Practice Mode" icon="map" href="/features/practice-mode">
+    In-game offline map guides with 1,000+ lineups on all 9 competitive maps
+  </Card>
+  
+  <Card title="Auto Line-ups" icon="crosshairs" href="/features/auto-lineups">
+    Instant pixel-perfect smokes and wallbangs with automatic positioning
+  </Card>
+  
+  <Card title="Jumpthrow Binds" icon="arrow-up" href="/features/jumpthrow-binds">
+    CS:GO-style jumpthrow and W-jumpthrow binds using ticker mechanics
+  </Card>
+  
+  <Card title="Movement Configs" icon="keyboard" href="/features/movement-configs">
+    Snap-Tap/Null binds and de-subtick movement input options
+  </Card>
+  
+  <Card title="Crosshair & Viewmodel" icon="circle-dot" href="/features/crosshair-viewmodel">
+    Pro player crosshairs and viewmodels from top 20 teams
+  </Card>
+  
+  <Card title="Rapid Fire & Follow Recoil" icon="gun" href="/features/rapid-fire-follow-recoil">
+    Rapid fire pistols and improved follow-recoil spray indicator
+  </Card>
+</CardGroup>
+
+## Radio Wheel System
+
+All features are accessible through in-game radio wheels bound to four keys (default: H, J, K, M):
+
+<Steps>
+  <Step title="Press Radio Key">
+    Press one of the four radio wheel keys to open the wheel
+  </Step>
+  
+  <Step title="Hover Over Tile">
+    Move your mouse over the desired feature tile
+  </Step>
+  
+  <Step title="Press Same Key Again">
+    Press and release the same key to activate the feature (clicking does nothing)
+  </Step>
+</Steps>
+
+### Default Radio Wheel Binds
+
+- **H**: CT Line-ups (Smokes & Wallbangs)
+- **J**: T Line-ups (Smokes & Wallbangs)  
+- **K**: Pro crosshairs, Rapid fire, Follow-recoil, and Movement configs
+- **M**: Map Selection + Practice Mode
+
+<Tip>
+Scroll your mouse wheel while the radio wheel is open to access additional pages of options.
+</Tip>
+
+## Feature Compatibility
+
+<AccordionGroup>
+  <Accordion title="Valve Matchmaking & Premier">
+    All features are legal and fully functional on official Valve servers. The config uses only commands that work under `sv_cheats 0`.
+  </Accordion>
+  
+  <Accordion title="FaceIt Servers">
+    All features work on FaceIt for ranked PUGs. FaceIt support has confirmed that yaw/pitch commands, custom radio wheels, and null binds are allowed. See the [FAQ](https://github.com/FNScence/csafap-config-package#faq-frequently-asked-questions) for official responses.
+    
+    Note: These features are not allowed in higher leagues like ESEA or ESL which prohibit the `alias` command.
+  </Accordion>
+  
+  <Accordion title="Third-Party Servers">
+    Most features work on community servers. Some practice mode features require `sv_cheats 1` and specific server settings.
+  </Accordion>
+</AccordionGroup>
+
+## Installation Requirements
+
+To use CSAFAP features, you need:
+
+1. Config files placed in: `C:\Program Files (x86)\Steam\steamapps\common\Counter-Strike Global Offensive\game\csgo\cfg\csafap`
+2. Language files placed in: `C:\Program Files (x86)\Steam\steamapps\common\Counter-Strike Global Offensive\game\csgo\`
+3. Launch options: `+exec csafap/main -testscript "../../csgo/cfg/csafap/addons/.vtest"`
+4. Sensitivity configured in `csafap/main.cfg`
+
+<Warning>
+The `-testscript` launch option is required for jumpthrow binds and rapid fire/follow-recoil features.
+</Warning>
+
+## Customization
+
+All features can be customized or disabled by editing `csafap/main.cfg`:
+
+- Change keybinds to your preference
+- Disable features by adding `// ` at the start of the bind line
+- Create custom line-ups and radio wheel configurations
+- Adjust movement configs and crosshair settings
+
+See individual feature pages for detailed configuration options.

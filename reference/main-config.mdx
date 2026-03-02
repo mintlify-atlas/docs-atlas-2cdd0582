@@ -1,0 +1,312 @@
+---
+title: "Main Configuration"
+description: "Complete reference for MAIN.cfg - the primary configuration file for the CSAFAP Config Package"
+---
+
+## Overview
+
+The `MAIN.cfg` file is the entry point for the CSAFAP Config Package (version 3.8). It contains all user-customizable settings including sensitivity, keybinds, crosshair settings, and feature toggles.
+
+## File Location
+
+```
+csafap/MAIN.cfg
+```
+
+## Configuration Sections
+
+### Sensitivity Configuration
+
+The most important setting to configure before using the package.
+
+<ParamField path="resetsens" type="alias" required>
+  Your base playing sensitivity. This is restored after using any sensitivity-modifying features.
+  
+  **Default Values:**
+  - `sensitivity 1.0` - Mouse sensitivity
+  - `m_yaw 0.022` - Horizontal mouse sensitivity multiplier
+  - `sensitivity_y_scale 1` - Vertical sensitivity scale
+
+  ```cfg
+  alias resetsens "sensitivity 1.0 ; m_yaw 0.022 ; sensitivity_y_scale 1"
+  ```
+
+  <Warning>You MUST edit this line with your actual sensitivity values before using the config.</Warning>
+</ParamField>
+
+### Base Keybinds
+
+Primary action keys for accessing different features.
+
+<ParamField path="bind M" type="keybind">
+  Opens the map selection menu and practice mode interface.
+  
+  ```cfg
+  bind "M" +map_action
+  ```
+</ParamField>
+
+<ParamField path="bind J" type="keybind">
+  Activates T-side smoke lineups for the current map.
+  
+  ```cfg
+  bind "J" +T_action
+  ```
+</ParamField>
+
+<ParamField path="bind H" type="keybind">
+  Activates CT-side smoke lineups for the current map.
+  
+  ```cfg
+  bind "H" +CT_action
+  ```
+</ParamField>
+
+<ParamField path="bind K" type="keybind">
+  Opens the crosshair action menu for pro crosshairs, follow-recoil, rapid fire, and snap-tap features.
+  
+  ```cfg
+  bind "K" +crosshair_action
+  ```
+</ParamField>
+
+### FACEIT-Compatible Smoke Binds
+
+Alternative smoke binds that work on FACEIT servers (currently commented out by default).
+
+<ParamField path="bind J (FACEIT)" type="keybind">
+  FACEIT-compatible T-side smoke binds.
+  
+  ```cfg
+  //bind "J" +fAC_T_action
+  ```
+  
+  Remove `//` to enable this bind instead of the default.
+</ParamField>
+
+<ParamField path="bind H (FACEIT)" type="keybind">
+  FACEIT-compatible CT-side smoke binds.
+  
+  ```cfg
+  //bind "H" +fAC_CT_action
+  ```
+  
+  Remove `//` to enable this bind instead of the default.
+</ParamField>
+
+### AveYo's Advanced Binds
+
+These features require the launch option: `-testscript "../../csgo/cfg/csafap/addons/.vtest"`
+
+<ParamField path="bind space" type="keybind">
+  Jump-throw bind (works like CS:GO).
+  
+  ```cfg
+  bind "space" +JumpThrow
+  ```
+</ParamField>
+
+<ParamField path="bind N" type="keybind">
+  W + Jump-throw bind (running jump-throw).
+  
+  ```cfg
+  bind "N" +WJumpThrow
+  ```
+</ParamField>
+
+<ParamField path="bind mwheeldown" type="keybind">
+  Desubtick jumping for better bunny hopping.
+  
+  ```cfg
+  bind "mwheeldown" desubJ
+  ```
+</ParamField>
+
+<ParamField path="bind CAPSLOCK" type="keybind">
+  Crouch-jump bind (works like CS:GO). Disabled by default.
+  
+  ```cfg
+  //bind "CAPSLOCK" +CrouchJump
+  ```
+</ParamField>
+
+<ParamField path="bind Ralt" type="keybind">
+  Toggle rapid fire and/or follow recoil on/off. Disabled by default.
+  
+  ```cfg
+  //bind "Ralt" toggle_rapid
+  ```
+</ParamField>
+
+### Mouse Button Configuration
+
+<Warning>Required for AveYo's advanced features to work properly.</Warning>
+
+```cfg
+bind MOUSE1 +M1
+bind MOUSE2 +M2
+cl_scoreboard_mouse_enable_binding +M2
+```
+
+If you use non-default mouse buttons, you must update these binds.
+
+## Feature Activation at Launch
+
+Uncomment these lines (remove `//`) to automatically enable features when the game starts.
+
+### Movement Binds
+
+<ParamField path="exec csafap/movement/default" type="exec">
+  Loads default WASD movement binds.
+  
+  ```cfg
+  //exec csafap/movement/default
+  ```
+</ParamField>
+
+<ParamField path="load_null" type="alias">
+  Enables null binds (ticker version). Requires launch option from line 18.
+  
+  ```cfg
+  //alias load_movement load_null
+  ```
+</ParamField>
+
+<ParamField path="load_desub" type="alias">
+  Enables desubtick binds (ticker version). Requires launch option from line 18.
+  
+  ```cfg
+  //alias load_movement load_desub
+  ```
+</ParamField>
+
+### Follow-Recoil and Rapid Fire
+
+<ParamField path="load_rpd" type="alias">
+  Enables rapid fire mode.
+  
+  ```cfg
+  //alias load_follow_recoil load_rpd
+  ```
+</ParamField>
+
+<ParamField path="load_flw" type="alias">
+  Enables better follow-recoil crosshair.
+  
+  ```cfg
+  //alias load_follow_recoil load_flw
+  ```
+</ParamField>
+
+<ParamField path="load_rpdflw" type="alias">
+  Enables both follow-recoil and rapid fire.
+  
+  ```cfg
+  //alias load_follow_recoil load_rpdflw
+  ```
+</ParamField>
+
+## Weapon Slot Binds for Rapid Fire/Follow Recoil
+
+<Warning>
+These binds are REQUIRED if you enable follow-recoil or rapid fire features.
+Uncomment all lines in this section to use these features.
+</Warning>
+
+```cfg
+//bind 1            "ef_slot1"      //primary
+//bind 2            "ef_slot2"      //secondary
+//bind 3            "ef_slot3"      //melee
+//bind 4            "ef_slot4"      //cycle nades
+//bind 5            "ef_slot5"      //bomb
+//bind c            "ef_slot6"      //HE grenade
+//bind f            "ef_slot7"      //flash
+//bind g            "ef_slot8"      //smoke
+//bind z            "ef_slot9"      //decoy
+//bind scancode100  "ef_slot9"      //decoy
+//bind v            "ef_slot10"     //molotov/incendiary
+//bind q            "ef_lastinv"    //quickswitch
+```
+
+## Crosshair & Viewmodel Settings
+
+### Reset Crosshair
+
+<ParamField path="reset_crosshair" type="alias" required>
+  Your personal crosshair settings. Replace with your own crosshair configuration.
+  
+  **Default Configuration:**
+  ```cfg
+  alias reset_crosshair "cl_crosshairstyle 4; cl_crosshair_recoil 0; 
+    cl_crosshairdot 0; cl_crosshairsize 1.8; cl_crosshairthickness 1; 
+    cl_crosshairgap -2.3; cl_crosshair_drawoutline 0; 
+    cl_crosshair_outlinethickness 1; cl_crosshaircolor 5; 
+    cl_crosshaircolor_b 0; cl_crosshaircolor_r 255; 
+    cl_crosshaircolor_g 255; cl_crosshairusealpha 1; 
+    cl_crosshairalpha 255; cl_crosshair_t 0; 
+    cl_crosshair_sniper_width 2"
+  ```
+</ParamField>
+
+### Reset Viewmodel
+
+<ParamField path="reset_viewmodel" type="alias" required>
+  Your personal viewmodel settings. Replace with your own viewmodel configuration.
+  
+  **Default Configuration:**
+  ```cfg
+  alias reset_viewmodel "viewmodel_presetpos 1; viewmodel_fov 90; 
+    viewmodel_offset_x 1; viewmodel_offset_y 2; 
+    viewmodel_offset_z -1.5;"
+  ```
+</ParamField>
+
+## System Loader
+
+<Warning>DO NOT EDIT THIS LINE</Warning>
+
+This line loads the main framework logic. Editing or removing this will break the entire config package.
+
+```cfg
+exec csafap/addons/loader
+```
+
+## Usage Examples
+
+### Example 1: Basic Setup
+
+```cfg
+// Set your sensitivity
+alias resetsens "sensitivity 0.8 ; m_yaw 0.022 ; sensitivity_y_scale 1"
+
+// Set your crosshair
+alias reset_crosshair "cl_crosshairstyle 4; cl_crosshairsize 2; 
+  cl_crosshairthickness 0.5; cl_crosshairgap -3; cl_crosshaircolor 1"
+```
+
+### Example 2: Enable Null Binds at Launch
+
+```cfg
+// Uncomment this line:
+alias load_movement load_null
+```
+
+### Example 3: Enable Follow-Recoil with Required Binds
+
+```cfg
+// 1. Uncomment the feature:
+alias load_follow_recoil load_flw
+
+// 2. Uncomment ALL weapon slot binds:
+bind 1 "ef_slot1"
+bind 2 "ef_slot2"
+bind 3 "ef_slot3"
+// ... (all weapon binds)
+bind q "ef_lastinv"
+```
+
+## Related Pages
+
+- [Movement Configs](/reference/movement-configs) - Detailed movement bind configurations
+- [Crosshair Configs](/reference/crosshair-configs) - Pro crosshairs and recoil features
+- [Map Configs](/reference/map-configs) - Map-specific smoke lineups

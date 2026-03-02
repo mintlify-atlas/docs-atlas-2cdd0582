@@ -1,0 +1,315 @@
+---
+title: Custom Radio Wheels
+description: Learn how to create your own custom radio wheel commands without using the full CSAFAP Config Package
+---
+
+You can create custom radio wheels to execute any CS2 commands through the radio wheel interface. This is useful for practice commands, utility binds, or quick access to frequently used settings.
+
+## Basic Concept
+
+Custom radio wheels work by:
+1. Binding a key to open the radio wheel with custom labels
+2. Releasing the key to switch to command mode
+3. Pressing the key again to execute the selected command
+4. Releasing the key to return to label mode
+
+This creates a two-phase toggle system where labels display first, then commands execute.
+
+## Minimal Setup
+
+You can find the most basic set of configs to create custom radio wheels in the **CS AFAP Discord Server** (pinned messages in the `#auto-lineup-config` channel).
+
+**Discord link:** [discord.gg/cs-as-fast-as-possible-992407294866370681](https://discord.gg/cs-as-fast-as-possible-992407294866370681)
+
+## Creating a Custom Radio Wheel
+
+<Steps>
+  <Step title="Create the keybind">
+    In your autoexec or custom config, create a two-phase bind:
+    
+    ```cfg
+    bind J +wheel_1  // Keybind to custom wheel_1
+    
+    alias +wheel_1 "exec CustomRadio/radio_labels"  // Call custom text
+    alias -wheel_1 "+radialradio; bind J +wheel_2"
+    alias +wheel_2 "exec CustomRadio/radio_cmd"     // Call custom commands
+    alias -wheel_2 "-radialradio; bind J +wheel_1"
+    ```
+  </Step>
+  
+  <Step title="Create label file">
+    Create a new config file: `CustomRadio/radio_labels.cfg`
+    
+    This file defines what text appears on each radio tile.
+  </Step>
+  
+  <Step title="Create command file">
+    Create a new config file: `CustomRadio/radio_cmd.cfg`
+    
+    This file defines what commands execute when you select each tile.
+  </Step>
+  
+  <Step title="Create language labels">
+    Add text labels to `csgo/resource/platform_english.txt`
+    
+    These define the actual text that appears on radio tiles.
+  </Step>
+</Steps>
+
+## Step 1: The Keybind Structure
+
+The two-phase bind switches between showing labels and executing commands:
+
+```cfg
+bind J +wheel_1                                    // Initial bind
+
+alias +wheel_1 "exec CustomRadio/radio_labels"    // Phase 1: Show labels
+alias -wheel_1 "+radialradio; bind J +wheel_2"     // Open wheel, switch to phase 2
+
+alias +wheel_2 "exec CustomRadio/radio_cmd"       // Phase 2: Execute commands  
+alias -wheel_2 "-radialradio; bind J +wheel_1"    // Close wheel, back to phase 1
+```
+
+### How It Works
+
+1. **Press J**: Executes `+wheel_1` → loads label config
+2. **Release J**: Executes `-wheel_1` → opens radio wheel, rebinds J to phase 2
+3. **Press J again**: Executes `+wheel_2` → loads command config, executes selected tile
+4. **Release J**: Executes `-wheel_2` → closes radio wheel, rebinds J back to phase 1
+
+## Step 2: Create Label Config
+
+Create `CustomRadio/radio_labels.cfg` to define radio tile labels:
+
+```cfg
+// CustomRadio/radio_labels.cfg
+
+cl_radial_radio_tab_0_text_1 "#CFG_NOCLIP"
+cl_radial_radio_tab_0_text_2 "#CFG_GOD_MODE"
+cl_radial_radio_tab_0_text_3 "#CFG_GIVE_SMOKES"
+cl_radial_radio_tab_0_text_4 ""
+cl_radial_radio_tab_0_text_5 ""
+cl_radial_radio_tab_0_text_6 ""
+cl_radial_radio_tab_0_text_7 "#CFG_RESTART_ROUND"
+cl_radial_radio_tab_0_text_8 "#CFG_INFINITE_AMMO"
+```
+
+### Radio Tile Numbers
+
+Tiles are numbered 1-8 in a circular pattern:
+
+```
+      3
+   2     4
+ 1         5
+   8     6
+      7
+```
+
+### Tab Numbers
+
+- `tab_0`: Primary wheel (default)
+- `tab_1`: Secondary wheel (accessible via scroll wheel)
+- `tab_2`: Tertiary wheel (accessible via scroll wheel)
+
+## Step 3: Create Command Config
+
+Create `CustomRadio/radio_cmd.cfg` to define what each tile executes:
+
+```cfg
+// CustomRadio/radio_cmd.cfg
+
+cl_radial_radio_tab_0_text_1 cmd";toggle_noclip;
+cl_radial_radio_tab_0_text_2 cmd";god;
+cl_radial_radio_tab_0_text_3 cmd";give weapon_smokegrenade;
+cl_radial_radio_tab_0_text_4 ""
+cl_radial_radio_tab_0_text_5 ""
+cl_radial_radio_tab_0_text_6 ""
+cl_radial_radio_tab_0_text_7 cmd";mp_restartgame 1;
+cl_radial_radio_tab_0_text_8 cmd";toggle_infinite_ammo;
+```
+
+### Command Syntax
+
+```cfg
+cl_radial_radio_tab_X_text_Y cmd";[commands];
+```
+
+**Important rules:**
+- Must start with `cmd";`
+- Must end with `;`
+- Commands are separated by `;`
+- Cannot contain `"` characters after `cmd";`
+- Tile numbers must match between label and command files
+
+<Warning>
+  The command line MUST end with a semicolon `;` or it will not work.
+</Warning>
+
+## Step 4: Create Language Labels
+
+Add labels to `csgo/resource/platform_english.txt`:
+
+```txt
+"CFG_NOCLIP"          "NOCLIP\n without HUD\n  \n  \n  \n  \n "
+"CFG_GOD_MODE"        "God Mode\n Toggle\n  \n  \n  \n  \n "
+"CFG_GIVE_SMOKES"     "Give\n Smoke Grenade\n  \n  \n  \n  \n "
+"CFG_RESTART_ROUND"   "Restart\n Round\n  \n  \n  \n  \n "
+"CFG_INFINITE_AMMO"   "Infinite\n Ammo\n  \n  \n  \n  \n "
+```
+
+### Label Formatting
+
+- Use `\n` for line breaks
+- Add extra `\n` lines to fill the radio tile (usually 6-7 total lines)
+- Add a trailing space on the last line
+- Reference labels in config with `#` prefix: `"#CFG_NOCLIP"`
+
+<Warning>
+  Changes to `platform_english.txt` require a full game restart to take effect.
+</Warning>
+
+## Complete Example: Practice Mode Wheel
+
+Here's a complete example for a practice mode radio wheel:
+
+### In your autoexec.cfg
+
+```cfg
+// Practice wheel keybind
+bind P +practice_wheel
+
+alias +practice_wheel "exec CustomRadio/practice_labels"
+alias -practice_wheel "+radialradio; bind P +practice_wheel_2"
+alias +practice_wheel_2 "exec CustomRadio/practice_cmd"
+alias -practice_wheel_2 "-radialradio; bind P +practice_wheel"
+```
+
+### CustomRadio/practice_labels.cfg
+
+```cfg
+cl_radial_radio_tab_0_text_1 "#CFG_NOCLIP"
+cl_radial_radio_tab_0_text_2 "#CFG_GIVE_UTIL"
+cl_radial_radio_tab_0_text_3 "#CFG_RESTART"
+cl_radial_radio_tab_0_text_4 "#CFG_BOT_PLACE"
+cl_radial_radio_tab_0_text_5 "#CFG_SHOW_IMPACTS"
+cl_radial_radio_tab_0_text_6 "#CFG_RETHROW"
+cl_radial_radio_tab_0_text_7 "#CFG_SAVE_POS"
+cl_radial_radio_tab_0_text_8 "#CFG_LOAD_POS"
+```
+
+### CustomRadio/practice_cmd.cfg
+
+```cfg
+cl_radial_radio_tab_0_text_1 cmd";noclip;toggle cl_drawhud 0 1;toggle r_drawviewmodel 0 1;
+cl_radial_radio_tab_0_text_2 cmd";give_full_utility;
+cl_radial_radio_tab_0_text_3 cmd";mp_restartgame 1;
+cl_radial_radio_tab_0_text_4 cmd";bot_place;
+cl_radial_radio_tab_0_text_5 cmd";toggle sv_showimpacts 1 0;
+cl_radial_radio_tab_0_text_6 cmd";rethrow_last_nade;
+cl_radial_radio_tab_0_text_7 cmd";save_current_position;
+cl_radial_radio_tab_0_text_8 cmd";load_saved_position;
+```
+
+### In platform_english.txt
+
+```txt
+"CFG_NOCLIP"          "NOCLIP\n Toggle\n  \n  \n  \n  \n "
+"CFG_GIVE_UTIL"       "Give\n Full Utility\n  \n  \n  \n  \n "
+"CFG_RESTART"         "Restart\n Game\n  \n  \n  \n  \n "
+"CFG_BOT_PLACE"       "Place\n Bot Here\n  \n  \n  \n  \n "
+"CFG_SHOW_IMPACTS"    "Show\n Impacts\n  \n  \n  \n  \n "
+"CFG_RETHROW"         "Rethrow\n Last Nade\n  \n  \n  \n  \n "
+"CFG_SAVE_POS"        "Save\n Position\n  \n  \n  \n  \n "
+"CFG_LOAD_POS"        "Load\n Position\n  \n  \n  \n  \n "
+```
+
+## Using Aliases for Complex Commands
+
+If you need to use `"` characters in your commands, create an alias in your autoexec:
+
+### In autoexec.cfg
+
+```cfg
+alias give_full_utility "give weapon_smokegrenade; give weapon_flashbang; give weapon_hegrenade; give weapon_molotov; give weapon_flashbang"
+alias rethrow_last_nade "sv_rethrow_last_grenade"
+alias save_current_position "exec practice/save_pos"  
+alias load_saved_position "exec practice/load_pos"
+```
+
+### In CustomRadio/practice_cmd.cfg
+
+```cfg
+cl_radial_radio_tab_0_text_2 cmd";give_full_utility;
+cl_radial_radio_tab_0_text_6 cmd";rethrow_last_nade;
+cl_radial_radio_tab_0_text_7 cmd";save_current_position;
+cl_radial_radio_tab_0_text_8 cmd";load_saved_position;
+```
+
+This allows you to call complex commands with quotes without breaking the radio wheel syntax.
+
+## Advanced: Multiple Wheels
+
+You can create multiple independent radio wheels on different keys:
+
+```cfg
+// Practice wheel on P
+bind P +practice_wheel
+alias +practice_wheel "exec CustomRadio/practice_labels"
+alias -practice_wheel "+radialradio; bind P +practice_wheel_2"
+alias +practice_wheel_2 "exec CustomRadio/practice_cmd"
+alias -practice_wheel_2 "-radialradio; bind P +practice_wheel"
+
+// Utility wheel on U  
+bind U +utility_wheel
+alias +utility_wheel "exec CustomRadio/utility_labels"
+alias -utility_wheel "+radialradio; bind U +utility_wheel_2"
+alias +utility_wheel_2 "exec CustomRadio/utility_cmd"
+alias -utility_wheel_2 "-radialradio; bind U +utility_wheel"
+```
+
+Each wheel has its own label and command configs.
+
+## Troubleshooting
+
+### Radio tiles are blank
+
+**Problem:** No text appears on radio tiles.
+
+**Solution:**
+1. Check that labels exist in `platform_english.txt`
+2. Verify label names match (with `#` prefix in label config)
+3. Restart the game (required for language file changes)
+
+### Commands don't execute
+
+**Problem:** Selecting a tile does nothing.
+
+**Solution:**
+1. Verify command syntax ends with `;`
+2. Check for `"` characters after `cmd";` (not allowed)
+3. Use aliases in autoexec for complex commands with quotes
+4. Ensure tile numbers match between labels and commands
+
+### Radio wheel doesn't open
+
+**Problem:** Pressing the key doesn't show the radio wheel.
+
+**Solution:**
+1. Check the bind syntax in your autoexec
+2. Verify `+radialradio` and `-radialradio` are in the correct aliases
+3. Make sure config files exist in the correct paths
+
+### Wrong tile executes
+
+**Problem:** Clicking on one tile executes a different command.
+
+**Solution:**
+1. Verify tile numbers match in both label and command configs
+2. Check for windowed mode cursor displacement issues
+3. Make sure you're using the same tab number (`tab_0`, `tab_1`, etc.)
+
+## See Also
+
+- [Creating Line-ups](/customization/creating-lineups) - Use custom wheels for your own line-ups
+- [Disabling Features](/customization/disabling-features) - Free up keys for custom wheels

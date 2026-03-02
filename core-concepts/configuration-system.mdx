@@ -1,0 +1,363 @@
+---
+title: Configuration System
+description: Understanding how to customize and extend the CSAFAP framework
+---
+
+The CSAFAP configuration system is designed to be both powerful and user-friendly. All customization happens through `.cfg` files that use CS2's alias and command syntax.
+
+## Configuration Hierarchy
+
+Configurations are organized in a hierarchical structure:
+
+```
+csafap/
+├── MAIN.cfg              # User-facing configuration
+├── logic.cfg             # Core framework logic (don't edit)
+├── addons/
+│   ├── loader.cfg        # Loads all subsystems
+│   ├── AveYo.cfg         # Ticker-based binds
+│   └── .vtest            # Ticker script
+├── maps/                 # Map-specific configs
+├── movement/             # Movement configurations  
+├── crosshair/            # Crosshair and viewmodel
+└── practice_mode/        # Practice mode configs
+```
+
+<Note>
+Only `MAIN.cfg` is meant to be edited by users. The framework files (`logic.cfg`, `loader.cfg`, etc.) should not be modified unless you're developing custom features.
+</Note>
+
+## User Configuration: MAIN.cfg
+
+The `MAIN.cfg` file is your control panel for customizing the framework.
+
+### Setting Your Sensitivity
+
+The most important configuration:
+
+```cfg
+// From MAIN.cfg:6
+alias resetsens "sensitivity 1.0 ; m_yaw 0.022 ; sensitivity_y_scale 1"
+```
+
+Replace `1.0` with your actual in-game sensitivity. This ensures auto line-ups work correctly while preserving your normal aim sensitivity.
+
+<Info>
+If you use a custom `m_yaw` or `sensitivity_y_scale`, set those values here as well. The framework will use these to restore your settings after line-ups.
+</Info>
+
+### Customizing Keybinds
+
+Base keybinds control access to major features:
+
+```cfg
+// From MAIN.cfg:9-12
+bind "M" +map_action          // Map selection + practice mode
+bind "J" +T_action            // T-side line-ups
+bind "H" +CT_action           // CT-side line-ups
+bind "K" +crosshair_action    // Crosshairs, rapid fire, snap-tap
+```
+
+Change the keys to match your preferences. Use scancode binds for non-QWERTY keyboards:
+
+```cfg
+bind scancode70 +map_action  // Scancode for M on AZERTY
+```
+
+### FaceIt Alternative Binds
+
+For servers that don't support standard auto line-ups:
+
+```cfg
+// From MAIN.cfg:14-15 (remove // to enable)
+//bind "J" +fAC_T_action   // T smokes for FaceIt
+//bind "H" +fAC_CT_action  // CT smokes for FaceIt  
+```
+
+### Ticker-Based Features
+
+Advanced features using AveYo's ticker system:
+
+```cfg
+// From MAIN.cfg:19-23
+bind "space" +JumpThrow        // CS:GO-style jumpthrow
+bind "N" +WJumpThrow           // CS:GO-style W-jumpthrow  
+bind "mwheeldown" desubJ       // Desubtick jumping (better bhop)
+//bind "CAPSLOCK" +CrouchJump  // Crouch-jump bind
+//bind "Ralt" toggle_rapid     // Toggle rapid fire/follow-recoil
+```
+
+<Info>
+Ticker features require the launch option:
+
+```bash
+-testscript "../../csgo/cfg/csafap/addons/.vtest"
+```
+</Info>
+
+### Enabling Features at Launch
+
+Optionally load features automatically when the game starts:
+
+```cfg
+// From MAIN.cfg:28-33
+//exec csafap/movement/default              // Default WASD
+//alias load_movement load_null             // Null binds (snap-tap)
+//alias load_movement load_desub            // Desubtick WASD
+//alias load_follow_recoil load_rpd         // Rapid fire
+//alias load_follow_recoil load_flw         // Better follow-recoil
+//alias load_follow_recoil load_rpdflw      // Rapid + follow-recoil
+```
+
+Remove the `//` prefix to enable a feature.
+
+### Rapid Fire / Follow-Recoil Requirements
+
+If using rapid fire or follow-recoil modes:
+
+```cfg
+// From MAIN.cfg:36-47
+//bind 1 "ef_slot1"      // Primary
+//bind 2 "ef_slot2"      // Secondary  
+//bind 3 "ef_slot3"      // Melee
+//bind 4 "ef_slot4"      // Cycle nades
+//bind 5 "ef_slot5"      // Bomb
+//bind c "ef_slot6"      // HE grenade
+//bind f "ef_slot7"      // Flash
+//bind g "ef_slot8"      // Smoke
+//bind z "ef_slot9"      // Decoy
+//bind v "ef_slot10"     // Molotov/incendiary
+//bind q "ef_lastinv"    // Quickswitch
+```
+
+These enhanced slot binds enable proper weapon detection for the rapid fire and follow-recoil systems.
+
+### Crosshair and Viewmodel
+
+Insert your preferred crosshair and viewmodel settings:
+
+```cfg
+// From MAIN.cfg:51-52
+alias reset_crosshair "cl_crosshairstyle 4; cl_crosshair_recoil 0; cl_crosshairsize 1.8; ..."
+alias reset_viewmodel "viewmodel_presetpos 1;viewmodel_fov 90;viewmodel_offset_x 1;..."
+```
+
+The framework will restore these settings when switching between pro player configs.
+
+## Map-Specific Configurations
+
+Each map has its own configuration directory:
+
+```
+maps/
+├── mirage/
+│   ├── mirage.cfg            # Map initialization
+│   ├── mirage_CT_labels.cfg  # CT wheel labels
+│   ├── mirage_CT_cmd.cfg     # CT wheel commands
+│   ├── mirage_T_labels.cfg   # T wheel labels
+│   ├── mirage_T_cmd.cfg      # T wheel commands  
+│   └── wheel_curr_map.cfg    # Current map marker
+├── dust2/
+├── inferno/
+└── ...
+```
+
+### Label Configuration
+
+Defines what text appears in radio tiles:
+
+```cfg
+// Example: mirage_CT_labels.cfg
+cl_radial_radio_tab_0_text_1 "#CFG_MIRAGE_WINDOW"
+cl_radial_radio_tab_0_text_2 "#CFG_MIRAGE_TOP_MID"  
+cl_radial_radio_tab_0_text_3 "#CFG_MIRAGE_CONNECTOR"
+```
+
+### Command Configuration
+
+Defines what executes when a tile is selected:
+
+```cfg
+// Example: mirage_CT_cmd.cfg
+cl_radial_radio_tab_0_text_1 cmd";exec_window_lineup;
+cl_radial_radio_tab_0_text_2 cmd";exec_topmid_lineup;
+cl_radial_radio_tab_0_text_3 cmd";exec_connector_lineup;
+```
+
+<Note>
+Commands must:
+- Start with `cmd";`
+- End with `;`
+- Cannot contain `"` characters (use aliases instead)
+</Note>
+
+## Movement Configurations
+
+Movement configs modify WASD behavior:
+
+### Default Movement
+
+```cfg
+// From movement/default.cfg
+bind W +forward
+bind A +left
+bind S +back
+bind D +right
+```
+
+### Null Binds (Snap-Tap)
+
+```cfg
+// From movement/nullWASD.cfg  
+bind W +nullW
+bind A +nullA
+bind S +nullS
+bind D +nullD
+```
+
+When using null binds, pressing an opposite direction key automatically releases the first key.
+
+### Desubtick Movement
+
+```cfg
+// From movement/desubtickWASD.cfg
+bind W +desubtickW
+bind A +desubtickA  
+bind S +desubtickS
+bind D +desubtickD
+```
+
+Movement inputs wait for the next tick rather than being subticked.
+
+<Tabs>
+  <Tab title="Default">
+    Standard CS2 movement with subtick precision. Best for most players.
+  </Tab>
+  <Tab title="Null Binds">
+    Automatically cancels opposite movement keys. Useful for fast strafing and jiggle-peeking.
+  </Tab>
+  <Tab title="Desubtick">
+    Delays input until next tick. Some players report a more CS:GO-like feel.
+  </Tab>
+</Tabs>
+
+## Adding Custom Line-ups
+
+To add your own line-up to the framework:
+
+### Step 1: Find the Angle
+
+In-game with `sv_cheats 1`, position yourself and use:
+
+```
+getpos
+```
+
+Note the `setpos` coordinates and `setang` angles.
+
+### Step 2: Calculate Yaw/Pitch
+
+Use the formula:
+
+```
+X = angle_degrees / (sensitivity × m_yaw)
+```
+
+For the framework's standard sensitivity:
+
+```
+X = angle_degrees / (1.0 × 0.022)
+X = angle_degrees / 0.022
+```
+
+<Info>
+Since version 2.15, vertical angles are zeroed at -89° instead of 0°. Add `+4045.45454545` to your calculated pitch value.
+</Info>
+
+### Step 3: Create Alias in logic.cfg
+
+Add your line-up alias:
+
+```cfg
+alias my_custom_lineup "yaw 1234.5 1 1; pitch 2345.6 0 0"
+```
+
+### Step 4: Add Label in platform_english.txt
+
+```
+"CFG_MY_LINEUP"    "My Custom Smoke\n from spawn 1\n \n \n \n \n "
+```
+
+### Step 5: Add to Map Label Config
+
+In `csafap/maps/[mapname]_labels.cfg`:
+
+```cfg
+cl_radial_radio_tab_0_text_7 "#CFG_MY_LINEUP"
+```
+
+### Step 6: Add to Map Command Config
+
+In `csafap/maps/[mapname]_cmd.cfg`:
+
+```cfg
+cl_radial_radio_tab_0_text_7 cmd";my_custom_lineup;
+```
+
+<Note>
+Use the same tile number (e.g., `text_7`) in both label and command configs.
+</Note>
+
+## Practice Mode Configuration
+
+Practice mode has its own configuration structure:
+
+```
+practice_mode/
+├── prac.cfg              # Practice mode initialization
+├── prac_labels.cfg       # Practice command labels
+├── prac_cmd.cfg          # Practice commands
+├── selectmap_labels.cfg  # Map selection labels  
+├── selectmap_cmd.cfg     # Map change commands
+└── maps/                 # Map-specific practice configs
+```
+
+When practice mode is enabled, the framework:
+1. Loads practice-specific radio wheel configurations
+2. Converts the map wheel to changelevel commands
+3. Converts CT wheel to spawn teleports
+4. Converts T wheel to practice commands (god, noclip, sv_cheats, etc.)
+
+## Advanced: Ticker System
+
+The ticker system enables frame-perfect input through a `.vtest` script:
+
+```cfg
+// From addons/.vtest
+Test_WaitForCheckPoint frame_end
+
+W!  // Called every frame
+W!
+A!
+A!
+S!
+S!
+D!
+D!
+M1!
+M2!
+JT!
+J!
+
+Test_Run  // Loop
+```
+
+This script calls special aliases every frame, enabling:
+- Null movement binds
+- Jumpthrow binds
+- Rapid fire
+- Follow-recoil
+
+<Info>
+Ticker aliases use `!` suffix (e.g., `W!`, `M1!`, `JT!`) and are chained through multiple alias substitutions per frame.
+</Info>
