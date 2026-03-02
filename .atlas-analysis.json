@@ -1,0 +1,126 @@
+{
+  "projectType": "framework",
+  "projectName": "CSAFAP Config Package",
+  "projectDescription": "A comprehensive .cfg-framework for Counter-Strike 2 that adds advanced features like practice mode, auto line-ups, and customization options.",
+  "theme": "aspen",
+  "primaryColor": "#FF6B35",
+  "lightColor": "#FFB627",
+  "darkColor": "#C44536",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "quickstart",
+              "video-tutorials"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "core-concepts/framework-overview",
+              "core-concepts/radio-wheels",
+              "core-concepts/configuration-system",
+              "core-concepts/launch-options"
+            ]
+          },
+          {
+            "group": "Features",
+            "pages": [
+              "features/overview",
+              "features/practice-mode",
+              "features/auto-lineups",
+              "features/jumpthrow-binds",
+              "features/movement-configs",
+              "features/crosshair-viewmodel",
+              "features/rapid-fire-follow-recoil"
+            ]
+          },
+          {
+            "group": "Map Guides",
+            "pages": [
+              "maps/overview",
+              "maps/ancient",
+              "maps/anubis",
+              "maps/dust2",
+              "maps/inferno",
+              "maps/mirage",
+              "maps/nuke",
+              "maps/overpass",
+              "maps/train",
+              "maps/vertigo"
+            ]
+          },
+          {
+            "group": "Customization",
+            "pages": [
+              "customization/keybinds",
+              "customization/sensitivity",
+              "customization/creating-lineups",
+              "customization/disabling-features",
+              "customization/custom-radio-wheels"
+            ]
+          },
+          {
+            "group": "Troubleshooting",
+            "pages": [
+              "troubleshooting/common-issues",
+              "troubleshooting/faq"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Reference",
+        "groups": [
+          {
+            "group": "Configuration",
+            "pages": [
+              "reference/main-config",
+              "reference/movement-configs",
+              "reference/crosshair-configs",
+              "reference/map-configs"
+            ]
+          },
+          {
+            "group": "Advanced",
+            "pages": [
+              "reference/alias-system",
+              "reference/yaw-pitch-calculations",
+              "reference/ticker-mechanics"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Practice Mode with in-game map guides for all 9 competitive maps",
+    "Automatic line-ups (instant smokes and wallbangs)",
+    "CS:GO-like jumpthrow and W-jumpthrow binds",
+    "Snap-Tap/Null-bind movement input",
+    "De-subtick binds for WASD and jump",
+    "Pro crosshair and viewmodel options from top 20 teams",
+    "Rapid-fire mode for pistols",
+    "Better follow-recoil mode"
+  ],
+  "publicApiSurface": [
+    "csafap/MAIN.cfg - Main configuration file",
+    "+map_action - Map selection and practice mode radio wheel",
+    "+CT_action - CT-side auto line-ups radio wheel",
+    "+T_action - T-side auto line-ups radio wheel",
+    "+crosshair_action - Crosshair, rapid fire, and movement configs",
+    "+JumpThrow - Jumpthrow bind",
+    "+WJumpThrow - W-jumpthrow bind",
+    "desubJ - Desubtick jumping bind",
+    "toggle_rapid - Toggle rapid fire and follow recoil",
+    "resetsens - Sensitivity reset alias",
+    "reset_crosshair - Crosshair reset alias",
+    "reset_viewmodel - Viewmodel reset alias"
+  ]
+}
